@@ -3,285 +3,1199 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>JEE Tracker</title>
+<title>📚 Study Tracker</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;font-family:system-ui,sans-serif}
-body{background:#0e1320;color:#e7edf9;padding:16px;max-width:1000px;margin:auto}
-h1{font-size:20px;margin-bottom:14px}
-nav{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
-nav button{background:#1e2941;border:1px solid #28334e;color:#8b97b2;padding:8px 14px;border-radius:9px;cursor:pointer;font-size:13px}
-nav button.on{background:#4d9fff;color:#fff;border-color:#4d9fff}
+:root{--bg:#faf5ea;--paper:#fffdf8;--paper2:#f5eddc;--ink:#3a2e1f;--ink2:#6b5842;--mut:#9b8a70;
+--line:#e5d9c0;--line2:#d4c4a3;--acc:#8b5a2b;--gold:#b8860b;--green:#5a7d3f;--red:#b04a4a;--blue:#4a6b8a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);background-image:radial-gradient(circle at 15% 0%,#f7eed9 0%,transparent 45%),
+radial-gradient(circle at 95% 100%,#f0e3c8 0%,transparent 45%);color:var(--ink);
+font-family:-apple-system,'Segoe UI',system-ui,sans-serif;font-size:14.5px;line-height:1.55;
+padding:22px 18px 80px;max-width:1150px;margin:0 auto}
+header{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-bottom:20px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,#8b5a2b,#b8860b);
+display:grid;place-items:center;font-size:22px;box-shadow:0 6px 18px rgba(139,90,43,.3)}
+.brand h1{font-family:Georgia,serif;font-size:19px;font-weight:700}
+.brand p{font-size:12px;color:var(--mut)}
+nav{display:flex;gap:4px;padding:4px;background:var(--paper);border:1px solid var(--line);
+border-radius:12px;box-shadow:0 2px 6px rgba(139,90,43,.08);overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{background:none;border:0;color:var(--ink2);font:inherit;font-size:13px;
+padding:8px 14px;border-radius:9px;cursor:pointer;white-space:nowrap;font-weight:500}
+nav button.on{background:var(--acc);color:#fff;font-weight:600}
+.acts{display:flex;gap:6px}
+.btn{font:inherit;font-size:13px;padding:9px 13px;border-radius:10px;cursor:pointer;
+border:1px solid var(--line2);background:var(--paper);color:var(--ink)}
+.btn:hover{border-color:var(--acc);color:var(--acc)}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
 .panel{display:none}.panel.on{display:block}
-.card{background:#182135;border:1px solid #28334e;border-radius:12px;padding:16px;margin-bottom:14px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-.stat{background:#131a2a;padding:12px;border-radius:10px}
-.stat b{font-size:24px;display:block;color:#4d9fff}
-.stat span{font-size:11px;color:#8b97b2;text-transform:uppercase}
-.bar{height:6px;background:#0b1120;border-radius:99px;overflow:hidden;margin-top:8px}
-.bar i{display:block;height:100%;background:#4d9fff;transition:.4s}
-.ch{display:flex;justify-content:space-between;padding:9px 12px;margin-bottom:5px;background:#131a2a;border-left:3px solid #28334e;border-radius:8px;cursor:pointer;font-size:13.5px}
-.ch[data-s="1"]{border-color:#f5b942}.ch[data-s="2"]{border-color:#4d9fff}.ch[data-s="3"]{border-color:#2ecc71;opacity:.7}
-.ch small{color:#8b97b2;font-size:11px}
-input,select,button.b{background:#131a2a;border:1px solid #28334e;color:#e7edf9;padding:9px 12px;border-radius:9px;font-size:13.5px;outline:none}
-input:focus{border-color:#4d9fff}
-button.b{cursor:pointer;background:#4d9fff;border-color:#4d9fff;font-weight:600}
-.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.row input[type=text]{flex:1;min-width:180px}
-.task{display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;background:#131a2a;border-radius:9px;font-size:13.5px}
-.task.done span{text-decoration:line-through;color:#8b97b2}
-.chk{width:20px;height:20px;border-radius:6px;border:2px solid #28334e;background:none;color:transparent;cursor:pointer;flex:none}
-.task.done .chk{background:#2ecc71;border-color:#2ecc71;color:#06210f}
-.task span{flex:1}
-.del{background:none;border:0;color:#8b97b2;font-size:18px;cursor:pointer}
-.del:hover{color:#ff5c7a}
-canvas{max-height:240px}
-table{width:100%;font-size:13px;border-collapse:collapse}
-th,td{padding:9px;text-align:left;border-bottom:1px solid #28334e}
-th{color:#8b97b2;font-size:11px;text-transform:uppercase}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;
+padding:18px 20px;margin-bottom:14px;box-shadow:0 2px 8px rgba(139,90,43,.06)}
+.card h3{font-family:Georgia,serif;font-size:13px;color:var(--ink2);text-transform:uppercase;
+letter-spacing:1.2px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card h3::before{content:'❋';color:var(--gold);font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.stat{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;position:relative}
+.stat .ic{position:absolute;top:10px;right:12px;font-size:20px;opacity:.5}
+.stat .lb{font-size:10.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.8px;font-weight:600}
+.stat .vl{font-family:Georgia,serif;font-size:25px;font-weight:700;margin-top:5px;display:block;line-height:1.1}
+.stat .vl small{font-size:13px;color:var(--mut);font-weight:500}
+.bar{height:6px;background:#e8ddc4;border-radius:99px;overflow:hidden;margin-top:9px}
+.bar i{display:block;height:100%;background:var(--acc);border-radius:99px;transition:width .5s}
+.chartbox{position:relative;height:220px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}}
+.rings{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.ring{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:14px;
+display:flex;align-items:center;gap:14px}
+.ring svg{width:56px;height:56px;flex:none;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:6;stroke-linecap:round}
+.ring .trk{stroke:#e8ddc4}
+.ring .info b{display:block;font-size:14px;font-family:Georgia,serif}
+.ring .info small{color:var(--mut);font-size:11.5px}
+.heat{display:flex;gap:6px;overflow-x:auto;padding:6px 0}
+.heat-labels{display:flex;flex-direction:column;justify-content:space-between;font-size:10px;
+color:var(--mut);padding:3px 0;height:110px;flex:none}
+.heat-grid{display:flex;gap:3px}.heat-col{display:flex;flex-direction:column;gap:3px}
+.heat-cell{width:13px;height:13px;border-radius:3px;cursor:pointer;transition:.15s}
+.heat-cell:hover{transform:scale(1.25);outline:2px solid var(--acc)}
+.heat-cell.l0{background:#ebe1c8}.heat-cell.l1{background:#c9d7a8}.heat-cell.l2{background:#8fae6a}
+.heat-cell.l3{background:#5a7d3f}.heat-cell.l4{background:#3a5a22}.heat-cell.out{background:#f5eddc}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center}
+.filters input[type=text]{flex:1;min-width:160px;background:var(--paper2);border:1px solid var(--line);
+border-radius:10px;padding:9px 13px;color:var(--ink);font:inherit;font-size:13.5px;outline:none}
+.filters input:focus{border-color:var(--acc);background:#fff}
+select{background:var(--paper2);border:1px solid var(--line);border-radius:10px;
+padding:9px 11px;color:var(--ink);font:inherit;font-size:13px;outline:none;cursor:pointer}
+.pill{font:inherit;font-size:12.5px;padding:7px 13px;border-radius:99px;cursor:pointer;
+background:var(--paper2);border:1px solid var(--line);color:var(--ink2)}
+.pill.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+.grp{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;font-weight:700;
+margin:16px 0 8px;display:flex;align-items:center;gap:8px}
+.grp .dot{width:8px;height:8px;border-radius:50%;flex:none}
+.ch{display:flex;align-items:center;gap:10px;padding:11px 14px;margin-bottom:6px;
+background:var(--paper2);border:1px solid var(--line);border-left:3px solid var(--line2);
+border-radius:10px;cursor:pointer;user-select:none;transition:.18s}
+.ch:hover{background:#fff;transform:translateX(3px)}
+.ch .nm{flex:1;font-size:13.5px;font-weight:500}
+.ch .tag{font-size:10.5px;padding:3px 9px;border-radius:99px;font-weight:700;
+background:#ede2c9;color:var(--ink2);white-space:nowrap}
+.ch .note{font-size:14px;opacity:.5;padding:0 4px;cursor:pointer}
+.ch .note:hover{opacity:1}
+.ch[data-s="1"]{border-left-color:var(--gold)}
+.ch[data-s="1"] .tag{color:#7a5a00;background:#f5e6b0}
+.ch[data-s="2"]{border-left-color:var(--blue)}
+.ch[data-s="2"] .tag{color:var(--blue);background:#d6e3f0}
+.ch[data-s="3"]{border-left-color:var(--green);opacity:.7}
+.ch[data-s="3"] .tag{color:var(--green);background:#d9e5c8}
+.ch[data-s="3"] .nm{text-decoration:line-through;color:var(--mut)}
+.taskbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.taskbar input[type=text]{flex:1;min-width:170px;background:var(--paper2);border:1px solid var(--line);
+border-radius:10px;padding:10px 13px;color:var(--ink);font:inherit;font-size:13.5px;outline:none}
+.taskbar input:focus{border-color:var(--acc);background:#fff}
+.taskbar input[type=date]{background:var(--paper2);border:1px solid var(--line);border-radius:10px;
+padding:10px 11px;color:var(--ink);font:inherit;font-size:13px;outline:none;cursor:pointer}
+.task{display:flex;align-items:center;gap:11px;padding:11px 14px;margin-bottom:7px;
+background:var(--paper2);border:1px solid var(--line);border-radius:11px}
+.task:hover{border-color:var(--line2);background:#fff}
+.task.pri-high{border-left:3px solid var(--red)}
+.task.pri-med{border-left:3px solid var(--gold)}
+.chk{width:22px;height:22px;flex:none;border-radius:7px;border:2px solid var(--line2);
+background:transparent;cursor:pointer;display:grid;place-items:center;color:transparent;
+font-size:12px;font-weight:900;padding:0}
+.task.done .chk{background:var(--green);border-color:var(--green);color:#fff}
+.task .tx{flex:1;font-size:13.5px;word-break:break-word}
+.task.done .tx{color:var(--mut);text-decoration:line-through}
+.chip{font-size:10.5px;padding:3px 9px;border-radius:99px;font-weight:700;
+background:#ede2c9;color:var(--ink2);white-space:nowrap}
+.del{background:none;border:0;color:var(--mut);font-size:20px;cursor:pointer;line-height:1;padding:0 4px}
+.del:hover{color:var(--red)}
+.empty{color:var(--mut);font-size:13.5px;text-align:center;padding:34px 10px}
+.empty .big{font-size:38px;margin-bottom:8px;opacity:.4}
+.ai-block{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.hdr{font-size:11.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.9px;font-weight:700;margin-bottom:12px}
+.ai-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:600px){.ai-2col{grid-template-columns:1fr}}
+.ai-2col label{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.ai-2col input{width:100%;margin-top:4px;background:#fff;border:1px solid var(--line);
+border-radius:9px;padding:9px 12px;color:var(--ink);font:inherit;font-size:14px;outline:none}
+.ai-2col input:focus{border-color:var(--acc)}
+.subj-row{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:10px}
+.subj-row .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.subj-row .top b{font-family:Georgia,serif;font-size:14px}
+.badge{font-size:11px;padding:3px 10px;border-radius:99px;font-weight:700}
+.badge.ok{background:#d9e5c8;color:var(--green)}.badge.warn{background:#f5e6b0;color:#7a5a00}
+.badge.bad{background:#f0d0d0;color:var(--red)}.badge.pri{background:#d6e3f0;color:var(--blue)}
+.lockdown{background:linear-gradient(135deg,#fdf1e0,#fae3cc);border:1px solid #e5c99a;
+border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.lockdown label{display:flex;align-items:center;gap:12px;cursor:pointer}
+.lockdown input{width:20px;height:20px;accent-color:var(--red);cursor:pointer}
+.lockdown b{color:var(--red);font-size:14px}
+.cm-row{display:grid;grid-template-columns:1fr 60px 60px 100px 28px;gap:8px;align-items:center;
+padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+.cm-row input{background:#fff;border:1px solid var(--line);border-radius:7px;padding:6px 9px;
+color:var(--ink);font:inherit;font-size:13px;outline:none}
+.cm-row input[type=text]{background:transparent;border:0}
+.cm-row input[type=text]:focus{background:#fff;border:1px solid var(--line)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.hint{font-size:12px;color:var(--mut);margin-top:10px;line-height:1.7}
+textarea{width:100%;background:var(--paper2);border:1px solid var(--line);border-radius:10px;
+padding:12px;color:var(--ink);font:inherit;font-size:13px;font-family:'Courier New',monospace;
+outline:none;resize:vertical}
+textarea:focus{border-color:var(--acc);background:#fff}
+#toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,100px);background:var(--ink);
+color:#fff;padding:12px 22px;border-radius:12px;font-size:13.5px;opacity:0;transition:.35s;
+pointer-events:none;z-index:999;font-weight:500}
+#toast.on{opacity:1;transform:translate(-50%,0)}
 </style>
 </head>
 <body>
 
-<h1>📚 JEE Tracker</h1>
-<nav>
-  <button data-t="dash" class="on">Dashboard</button>
-  <button data-t="ch">Chapters</button>
-  <button data-t="tk">Tasks</button>
-  <button data-t="mo">Monthly</button>
-  <button id="exp" style="margin-left:auto">⬇ Export</button>
-  <button id="imp">⬆ Import</button>
-  <input type="file" id="file" hidden accept=".json">
-</nav>
+<header>
+  <div class="brand">
+    <div class="logo">📚</div>
+    <div><h1>Study Tracker</h1><p id="tag">Loading…</p></div>
+  </div>
+  <nav class="tabs">
+    <button data-t="dash" class="on">Dashboard</button>
+    <button data-t="ch">Chapters</button>
+    <button data-t="tk">Tasks</button>
+    <button data-t="ai">AI Plan</button>
+    <button data-t="mo">Monthly</button>
+  </nav>
+  <div class="acts">
+    <button class="btn" id="exp">⬇</button>
+    <button class="btn" id="imp">⬆</button>
+    <input type="file" id="file" hidden accept=".json">
+  </div>
+</header>
 
 <!-- DASHBOARD -->
-<div id="dash" class="panel on">
-  <div class="card"><div class="stats" id="stats"></div></div>
-  <div class="card"><h3 style="font-size:13px;color:#8b97b2;margin-bottom:10px">LAST 14 DAYS</h3><canvas id="c1"></canvas></div>
-  <div class="card"><h3 style="font-size:13px;color:#8b97b2;margin-bottom:10px">SUBJECT PROGRESS</h3><div id="subj"></div></div>
-</div>
+<section id="dash" class="panel on">
+  <div class="stats" id="stats" style="margin-bottom:14px"></div>
+  <div class="grid2">
+    <div class="card"><h3>Last 14 Days</h3><div class="chartbox"><canvas id="c1"></canvas></div></div>
+    <div class="card"><h3>Subject Mastery</h3><div class="chartbox"><canvas id="c2"></canvas></div></div>
+  </div>
+  <div class="card"><h3>Activity Heatmap — 12 Weeks</h3><div id="heat"></div></div>
+  <div class="card"><h3>Subject Progress</h3><div class="rings" id="rings"></div></div>
+</section>
 
 <!-- CHAPTERS -->
-<div id="ch" class="panel">
+<section id="ch" class="panel">
   <div class="card">
-    <div class="row">
+    <div class="filters">
+      <input type="text" id="fq" placeholder="Search chapter…">
       <select id="fsub"><option value="">All Subjects</option></select>
-      <input type="text" id="fq" placeholder="Search chapter...">
+      <select id="fcls"><option value="">All Classes</option>
+        <option>Class 11</option><option>Class 12</option></select>
+      <button class="pill on" data-st="all">All</button>
+      <button class="pill" data-st="0">New</button>
+      <button class="pill" data-st="1">Learning</button>
+      <button class="pill" data-st="2">Revised</button>
+      <button class="pill" data-st="3">Mastered</button>
     </div>
     <div id="chlist"></div>
-    <p style="font-size:12px;color:#8b97b2;margin-top:10px">Click a chapter to cycle: Not Started → Learning → Revised → Mastered</p>
+    <p class="hint">Click a chapter to cycle status · 📝 to add a note</p>
   </div>
-</div>
+</section>
 
 <!-- TASKS -->
-<div id="tk" class="panel">
+<section id="tk" class="panel">
   <div class="card">
-    <div class="row">
+    <div class="taskbar">
       <input type="date" id="td">
-      <input type="text" id="ti" placeholder="Today's task...">
-      <select id="ts"><option value="">Subject</option><option>Physics</option><option>Chemistry</option><option>Mathematics</option><option>Revision</option><option>Mock Test</option></select>
-      <button class="b" id="add">+ Add</button>
+      <input type="text" id="ti" placeholder="What will you study today?">
+      <select id="ts"><option value="">Subject</option>
+        <option>Physics</option><option>Chemistry</option><option>Mathematics</option>
+        <option>Revision</option><option>Mock Test</option></select>
+      <select id="tp"><option value="">Priority</option>
+        <option value="high">🔴 High</option>
+        <option value="med">🟡 Medium</option>
+        <option value="low">🟢 Low</option></select>
+      <button class="btn pri" id="add">+ Add</button>
     </div>
     <div id="tlist"></div>
   </div>
-</div>
+  <div class="card">
+    <h3>📸 Import Schedule</h3>
+    <textarea id="impText" rows="4" placeholder="Paste schedule text here…
+2026-09-25 | Physics | Rotational Motion
+Or: Mon, Chemistry, Electrochemistry"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn pri" id="impParse">🔍 Parse</button>
+      <button class="btn" id="impImg">📸 Upload Image</button>
+      <input type="file" id="impImgIn" hidden accept="image/*">
+      <button class="btn" id="impDemo">✨ Demo</button>
+      <button class="btn" id="impClear" style="margin-left:auto">Clear</button>
+    </div>
+    <div id="impPreview" style="display:none;margin-top:14px"></div>
+  </div>
+</section>
+
+<!-- AI PLANNER -->
+<section id="ai" class="panel">
+  <div class="lockdown">
+    <label>
+      <input type="checkbox" id="lockdown">
+      <div>
+        <b>🔒 Backlog Lockdown Mode</b>
+        <div style="font-size:12px;color:var(--mut);margin-top:2px">
+          Skip live classes until backlog is cleared.
+        </div>
+      </div>
+    </label>
+  </div>
+
+  <div class="card">
+    <h3>📡 Your Position</h3>
+    <div id="aiInputs"></div>
+    <div class="ai-2col" style="margin-top:14px">
+      <div><label>Target Date</label><input type="date" id="aiDeadline"></div>
+      <div><label>Max Hours / Day</label><input type="number" id="aiHours" value="4" min="1" max="14" step="0.5"></div>
+    </div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn pri" id="aiGen">⚡ Generate Plan</button>
+      <button class="btn" id="aiCatch">📚 I'm caught up</button>
+    </div>
+    <div id="aiDiag" style="margin-top:14px"></div>
+  </div>
+
+  <div class="card">
+    <h3>🏫 School Schedule</h3>
+    <div class="ai-2col" style="margin-bottom:12px">
+      <div><label>Start Time</label><input type="time" id="scStart" value="08:00"></div>
+      <div><label>End Time</label><input type="time" id="scEnd" value="14:00"></div>
+    </div>
+    <div style="font-size:11px;color:var(--mut);text-transform:uppercase;font-weight:600;margin-bottom:6px">
+      School Days</div>
+    <div id="scDays" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px"></div>
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;background:#fff;
+      border:1px solid var(--line);border-radius:10px;padding:11px 13px">
+      <input type="checkbox" id="scLeave" style="width:18px;height:18px;accent-color:var(--green);cursor:pointer">
+      <div>
+        <b style="font-size:13.5px;color:var(--green)">🎉 I have leave today</b>
+        <div style="font-size:11.5px;color:var(--mut)">Extra hours unlock for backlog</div>
+      </div>
+    </label>
+    <div id="scSum" class="hint"></div>
+  </div>
+
+  <div class="card">
+    <h3>📖 Chapter Map (lectures per chapter)</h3>
+    <p class="hint" style="margin:0 0 14px">Set lecture ranges so AI shows chapter-wise progress.</p>
+    <div id="cmapList"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="cmapAuto">⚡ Auto-fill</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📡 Weekly Live Classes (for sir's pace)</h3>
+    <div class="row" style="margin-bottom:12px">
+      <select id="lcDay">
+        <option value="1">Mon</option><option value="2">Tue</option><option value="3">Wed</option>
+        <option value="4">Thu</option><option value="5">Fri</option><option value="6">Sat</option>
+        <option value="0">Sun</option>
+      </select>
+      <input type="time" id="lcTime" value="18:00"
+        style="background:var(--paper2);border:1px solid var(--line);border-radius:9px;
+        padding:8px 11px;color:var(--ink);font:inherit;font-size:13px;outline:none">
+      <select id="lcSub"><option>Physics</option><option>Chemistry</option><option>Mathematics</option></select>
+      <button class="btn pri" id="lcAdd">+ Add</button>
+    </div>
+    <div id="lcList"></div>
+  </div>
+
+  <div class="card" id="planBox" style="display:none">
+    <h3>📋 Your Plan — edit before importing</h3>
+    <div class="row" style="margin-bottom:14px">
+      <input type="text" id="planNew" placeholder="Add custom task…"
+        style="flex:1;min-width:170px;background:var(--paper2);border:1px solid var(--line);
+        border-radius:10px;padding:10px 13px;color:var(--ink);font:inherit;font-size:13.5px;outline:none">
+      <input type="date" id="planNewDate"
+        style="background:var(--paper2);border:1px solid var(--line);border-radius:10px;
+        padding:10px;color:var(--ink);font:inherit;font-size:13px;outline:none">
+      <button class="btn" id="planAdd">+ Add</button>
+      <button class="btn pri" id="planImport" style="margin-left:auto">✅ Import All</button>
+    </div>
+    <div id="planList"></div>
+  </div>
+</section>
 
 <!-- MONTHLY -->
-<div id="mo" class="panel">
+<section id="mo" class="panel">
   <div class="card">
-    <div class="row"><select id="msel"></select></div>
-    <div class="stats" id="mstats"></div>
-    <canvas id="c3" style="margin-top:16px"></canvas>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;
+      flex-wrap:wrap;margin-bottom:14px">
+      <h3 style="margin:0">📅 Monthly Report</h3>
+      <select id="msel"></select>
+    </div>
+    <div class="stats" id="mstats" style="margin-bottom:6px"></div>
+    <div class="chartbox" style="height:240px;margin-top:14px"><canvas id="c3"></canvas></div>
   </div>
-  <div class="card"><table id="mtbl"></table></div>
-</div>
+  <div class="card"><h3>All Months</h3><div id="mtbl"></div></div>
+</section>
+
+<div id="toast"></div>
 
 <script>
-/* ========== SYLLABUS (edit freely) ========== */
+/* ═══ DATA ═══ */
 const SYL={
 Physics:{
-"Class 11":["Units & Measurements","Kinematics","Laws of Motion","Work Energy & Power","Rotational Motion","Gravitation","Mechanical Properties of Solids","Mechanical Properties of Fluids","Thermal Properties","Thermodynamics","Kinetic Theory","Oscillations","Waves"],
-"Class 12":["Electric Charges & Fields","Electrostatic Potential","Current Electricity","Moving Charges & Magnetism","Magnetism & Matter","EM Induction","Alternating Current","EM Waves","Ray Optics","Wave Optics","Dual Nature of Radiation","Atoms","Nuclei","Semiconductors"]},
+"Class 11":["Units & Measurements","Kinematics","Laws of Motion","Work Energy & Power","Rotational Motion","Gravitation","Properties of Solids","Properties of Fluids","Thermal Properties","Thermodynamics","Kinetic Theory","Oscillations","Waves"],
+"Class 12":["Electric Charges & Fields","Potential & Capacitance","Current Electricity","Moving Charges & Magnetism","Magnetism & Matter","EM Induction","Alternating Current","EM Waves","Ray Optics","Wave Optics","Dual Nature","Atoms","Nuclei","Semiconductors"]},
 Chemistry:{
-"Class 11":["Basic Concepts","Structure of Atom","Periodicity","Chemical Bonding","States of Matter","Thermodynamics","Equilibrium","Redox Reactions","Hydrogen","s-Block","p-Block 13&14","Organic Basics","Hydrocarbons","Environmental Chemistry"],
-"Class 12":["Solid State","Solutions","Electrochemistry","Chemical Kinetics","Surface Chemistry","Isolation of Elements","p-Block 15-18","d & f Block","Coordination Compounds","Haloalkanes","Alcohols Phenols Ethers","Aldehydes Ketones","Amines","Biomolecules","Polymers","Everyday Life"]},
+"Class 11":["Basic Concepts","Structure of Atom","Periodicity","Chemical Bonding","States of Matter","Thermodynamics","Equilibrium","Redox Reactions","Hydrogen","s-Block","p-Block 13 & 14","Organic Basics","Hydrocarbons","Environmental Chemistry"],
+"Class 12":["Solid State","Solutions","Electrochemistry","Chemical Kinetics","Surface Chemistry","Isolation of Elements","p-Block 15-18","d & f Block","Coordination Compounds","Haloalkanes","Alcohols Phenols Ethers","Aldehydes Ketones Acids","Amines","Biomolecules","Polymers","Everyday Life"]},
 Mathematics:{
-"Class 11":["Sets","Relations & Functions","Trigonometry","Mathematical Induction","Complex Numbers","Linear Inequalities","Permutations & Combinations","Binomial Theorem","Sequences & Series","Straight Lines","Conic Sections","3D Geometry","Limits & Derivatives","Mathematical Reasoning","Statistics","Probability"],
+"Class 11":["Sets","Relations & Functions","Trigonometry","Induction","Complex Numbers","Inequalities","Permutations & Combinations","Binomial Theorem","Sequences & Series","Straight Lines","Conic Sections","3D Geometry","Limits & Derivatives","Reasoning","Statistics","Probability"],
 "Class 12":["Relations & Functions","Inverse Trig","Matrices","Determinants","Continuity & Differentiability","Application of Derivatives","Integrals","Application of Integrals","Differential Equations","Vector Algebra","3D Geometry","Linear Programming","Probability"]}
 };
-
 const ST=["Not Started","Learning","Revised","Mastered"];
 const W=[0,.35,.7,1];
-const CLR={Physics:"#4d9fff",Chemistry:"#2ecc71",Mathematics:"#f5a742"};
-const KEY="jee-tracker";
+const CLR={Physics:"#4a6b8a",Chemistry:"#5a7d3f",Mathematics:"#b8860b"};
+const KEY="study-tracker-v1";
+const SUBJS=Object.keys(CLR);
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-/* ========== STATE ========== */
-let S=JSON.parse(localStorage.getItem(KEY)||'{"ch":{},"tk":{}}');
-const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
+/* ═══ STATE ═══ */
+let S=JSON.parse(localStorage.getItem(KEY)||'null')||{};
+S.ch=S.ch||{};S.tk=S.tk||{};S.ses=S.ses||{};S.goal=S.goal||20;
+S.ai=S.ai||{pos:{},live:{},chmap:{},lockdown:false};
+SUBJS.forEach(s=>{
+  S.ai.pos[s]=S.ai.pos[s]||{me:0,sir:0};
+  S.ai.chmap[s]=S.ai.chmap[s]||[];
+  for(let i=0;i<7;i++)S.ai.live[i]=S.ai.live[i]||[];
+});
+S.ai.school=S.ai.school||{start:"08:00",end:"14:00",days:[1,2,3,4,5,6],leaves:[]};
+S.ai.lockdown=S.ai.lockdown||false;
+
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast("Storage full")}};
 const $=s=>document.querySelector(s);
-const today=()=>new Date().toISOString().slice(0,10);
-
-/* ========== HELPERS ========== */
+const $$=s=>[...document.querySelectorAll(s)];
+const pad=n=>String(n).padStart(2,"0");
+const fmt=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const today=()=>fmt(new Date());
 const allCh=()=>{let o=[];for(let s in SYL)for(let c in SYL[s])SYL[s][c].forEach(n=>o.push({id:s+"|"+c+"|"+n,s,c,n}));return o};
-const getCh=id=>S.ch[id]||0;
+const getCh=id=>S.ch[id]||{s:0,note:"",doneAt:null};
 const dStat=k=>{let a=S.tk[k]||[],d=a.filter(t=>t.done).length;return{t:a.length,d,p:a.length?d/a.length*100:0}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");
+  clearTimeout(t._);t._=setTimeout(()=>t.classList.remove("on"),2200)}
+function mLabel(ym){const n=["January","February","March","April","May","June","July","August",
+  "September","October","November","December"];const[y,m]=ym.split("-");return n[+m-1]+" "+y}
+function chapterOf(sub,lec){for(const c of(S.ai.chmap[sub]||[]))if(lec>=c.from&&lec<=c.to)return c;return null}
 
-/* ========== DASHBOARD ========== */
-function dash(){
-  let tot=0,earn=0,mast=0,byS={};for(let s in CLR)byS[s]={e:0,c:0,m:0};
-  allCh().forEach(x=>{let st=getCh(x.id);tot++;earn+=W[st];if(st==3)mast++;byS[x.s].e+=W[st];byS[x.s].c++;if(st==3)byS[x.s].m++});
-  let pct=tot?earn/tot*100:0;
-  let t=dStat(today());
-  // streak
-  let d=new Date(),stk=0;if(!(S.tk[today()]||[]).some(x=>x.done))d.setDate(d.getDate()-1);
-  while((S.tk[d.toISOString().slice(0,10)]||[]).some(x=>x.done)){stk++;d.setDate(d.getDate()-1)}
-  
-  $("#stats").innerHTML=`
-    <div class="stat"><span>Syllabus</span><b>${pct.toFixed(1)}%</b><div class="bar"><i style="width:${pct}%"></i></div></div>
-    <div class="stat"><span>Mastered</span><b>${mast}/${tot}</b><div class="bar"><i style="width:${tot?mast/tot*100:0}%"></i></div></div>
-    <div class="stat"><span>Today</span><b>${t.d}/${t.t}</b><div class="bar"><i style="width:${t.p}%"></i></div></div>
-    <div class="stat"><span>Streak</span><b>${stk} days</b><div class="bar"><i style="width:${Math.min(stk/30*100,100)}%"></i></div></div>`;
-  
-  // subject bars
-  $("#subj").innerHTML=Object.keys(CLR).map(s=>{
-    let o=byS[s],p=o.c?o.e/o.c*100:0;
-    return `<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><b style="color:${CLR[s]}">${s}</b><span style="color:#8b97b2">${o.m}/${o.c} · ${p.toFixed(0)}%</span></div><div class="bar"><i style="width:${p}%;background:${CLR[s]}"></i></div></div>`;
-  }).join("");
-  
-  // daily chart
-  let lb=[],dt=[];
-  for(let i=13;i>=0;i--){let d=new Date();d.setDate(d.getDate()-i);let k=d.toISOString().slice(0,10);lb.push(d.getDate()+"/"+(d.getMonth()+1));dt.push(dStat(k).p)}
-  mkChart("c1","line",lb,dt,"#4d9fff",true);
+/* ═══ STATS ═══ */
+function sylStat(){
+  let tot=0,earn=0,mast=0,by={};
+  SUBJS.forEach(s=>by[s]={e:0,c:0,m:0});
+  allCh().forEach(x=>{let st=getCh(x.id).s;tot++;earn+=W[st];if(st===3)mast++;
+    by[x.s].e+=W[st];by[x.s].c++;if(st===3)by[x.s].m++});
+  return{pct:tot?earn/tot*100:0,tot,mast,by};
+}
+function streak(){
+  const has=k=>(S.tk[k]||[]).some(t=>t.done)||(S.ses[k]||0)>0;
+  let d=new Date();if(!has(fmt(d)))d.setDate(d.getDate()-1);
+  let n=0;while(has(fmt(d))){n++;d.setDate(d.getDate()-1)}return n;
+}
+function monthStat(ym){
+  let tot=0,dn=0,days={},chD=0,mins=0;
+  Object.keys(S.tk).forEach(k=>{if(k.slice(0,7)!==ym)return;
+    let a=S.tk[k],d=a.filter(t=>t.done).length;
+    tot+=a.length;dn+=d;days[k]={t:a.length,d,p:a.length?d/a.length*100:0}});
+  Object.values(S.ch).forEach(v=>{if(v.doneAt&&v.doneAt.slice(0,7)===ym)chD++});
+  Object.keys(S.ses).forEach(k=>{if(k.slice(0,7)===ym)mins+=S.ses[k]});
+  return{tot,dn,p:tot?dn/tot*100:0,days,chD,mins,active:Object.keys(days).length};
 }
 
-/* ========== CHAPTERS ========== */
-function chapters(){
-  let fs=$("#fsub").value,q=$("#fq").value.toLowerCase(),h="";
-  for(let s in SYL){
+/* ═══ CHARTS ═══ */
+const charts={};
+Chart.defaults.color="#9b8a70";
+Chart.defaults.font.family="Georgia,serif";
+Chart.defaults.font.size=11.5;
+const gridC={color:"#e5d9c0",drawBorder:false};
+const tickC={color:"#9b8a70"};
+
+function line(id,lb,dt,col,fill){
+  if(charts[id])charts[id].destroy();
+  charts[id]=new Chart($("#"+id),{type:"line",
+    data:{labels:lb,datasets:[{data:dt,borderColor:col,backgroundColor:fill?col+"30":col,
+      borderWidth:2.5,tension:.35,fill,pointRadius:3.5,pointBackgroundColor:col,
+      pointBorderColor:"#fffdf8",pointBorderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:"#3a2e1f",padding:11,
+        callbacks:{label:c=>" "+(c.parsed.y||0).toFixed(0)+"%"}}},
+      scales:{y:{beginAtZero:true,max:100,grid:gridC,ticks:{...tickC,callback:v=>v+"%"}},
+        x:{grid:{display:false},ticks:tickC}}}});
+}
+function doughnut(id,lb,dt){
+  if(charts[id])charts[id].destroy();
+  charts[id]=new Chart($("#"+id),{type:"doughnut",
+    data:{labels:lb,datasets:[{data:dt,backgroundColor:lb.map(l=>CLR[l]+"dd"),
+      borderColor:"#fffdf8",borderWidth:3,hoverOffset:10}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:"65%",
+      plugins:{legend:{position:"bottom",labels:{padding:14,usePointStyle:true,pointStyle:"circle"}},
+        tooltip:{backgroundColor:"#3a2e1f",padding:11,callbacks:{label:c=>" "+c.parsed.toFixed(1)+"%"}}}}});
+}
+function bar(id,lb,dt,cl){
+  if(charts[id])charts[id].destroy();
+  charts[id]=new Chart($("#"+id),{type:"bar",
+    data:{labels:lb,datasets:[{data:dt,backgroundColor:cl,borderRadius:5,maxBarThickness:20}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:"#3a2e1f",padding:11,
+        callbacks:{label:c=>" "+c.parsed.y.toFixed(0)+"%"}}},
+      scales:{y:{beginAtZero:true,max:100,grid:gridC,ticks:{...tickC,callback:v=>v+"%"}},
+        x:{grid:{display:false},ticks:{...tickC,maxRotation:0,autoSkipPadding:6}}}}});
+}
+
+/* ═══ DASHBOARD ═══ */
+function renderDash(){
+  const s=sylStat(),t=dStat(today()),stk=streak(),mins=S.ses[today()]||0;
+  $("#stats").innerHTML=`
+    <div class="stat"><span class="ic">📚</span><span class="lb">Syllabus</span>
+      <span class="vl">${s.pct.toFixed(1)}<small>%</small></span>
+      <div class="bar"><i style="width:${s.pct}%"></i></div></div>
+    <div class="stat"><span class="ic">🏆</span><span class="lb">Mastered</span>
+      <span class="vl">${s.mast}<small>/${s.tot}</small></span>
+      <div class="bar"><i style="width:${s.tot?s.mast/s.tot*100:0}%;background:var(--green)"></i></div></div>
+    <div class="stat"><span class="ic">✅</span><span class="lb">Today's Tasks</span>
+      <span class="vl">${t.d}<small>/${t.t}</small></span>
+      <div class="bar"><i style="width:${t.p}%"></i></div></div>
+    <div class="stat"><span class="ic">🔥</span><span class="lb">Streak</span>
+      <span class="vl">${stk}<small> days</small></span>
+      <div class="bar"><i style="width:${Math.min(stk/30*100,100)}%;background:var(--red)"></i></div></div>
+    <div class="stat"><span class="ic">⏱️</span><span class="lb">Studied Today</span>
+      <span class="vl">${mins}<small> min</small></span>
+      <div class="bar"><i style="width:${Math.min(mins/S.goal*100,100)}%;background:var(--gold)"></i></div>
+      <div style="font-size:11px;color:var(--mut);margin-top:2px">Goal: ${S.goal} min</div></div>`;
+  const lb=[],dt=[];
+  for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);
+    lb.push(d.getDate()+"/"+(d.getMonth()+1));dt.push(dStat(fmt(d)).p)}
+  line("c1",lb,dt,"#8b5a2b",true);
+  doughnut("c2",SUBJS,SUBJS.map(k=>s.by[k].c?s.by[k].e/s.by[k].c*100:0));
+  renderHeat();
+  $("#rings").innerHTML=SUBJS.map(sub=>{
+    const o=s.by[sub],p=o.c?o.e/o.c*100:0,r=22,c=2*Math.PI*r,off=c-(p/100)*c;
+    return `<div class="ring">
+      <svg viewBox="0 0 54 54">
+        <circle class="trk" cx="27" cy="27" r="${r}"></circle>
+        <circle class="trk" cx="27" cy="27" r="${r}" stroke="${CLR[sub]}"
+          stroke-dasharray="${c}" stroke-dashoffset="${off}"></circle>
+      </svg>
+      <div class="info"><b style="color:${CLR[sub]}">${sub}</b>
+        <small>${o.m}/${o.c} mastered · ${p.toFixed(0)}%</small></div></div>`;
+  }).join("");
+  $("#tag").textContent=`${s.mast} mastered · ${stk}-day streak · ${s.pct.toFixed(1)}%`;
+}
+function renderHeat(){
+  const weeks=12,t=new Date(),start=new Date(t);
+  start.setDate(start.getDate()-weeks*7+1-start.getDay());
+  let h='<div class="heat"><div class="heat-labels"><span>Mon</span><span>Wed</span><span>Fri</span></div><div class="heat-grid">';
+  for(let w=0;w<weeks;w++){
+    h+='<div class="heat-col">';
+    for(let d=0;d<7;d++){
+      const dt=new Date(start);dt.setDate(dt.getDate()+w*7+d);
+      const k=fmt(dt),inR=dt<=t,st=inR?dStat(k):{t:0,p:0},mins=inR?(S.ses[k]||0):0;
+      const pct=st.t?st.p:(mins>0?Math.min(mins/S.goal*100,100):0);
+      let lv="out";
+      if(inR)lv=!st.t&&!mins?"l0":pct<34?"l1":pct<67?"l2":pct<100?"l3":"l4";
+      const tt=inR?`${k} — ${st.d}/${st.t} tasks`:"";
+      h+=`<div class="heat-cell ${lv}" title="${tt}"></div>`;
+    }
+    h+='</div>';
+  }
+  h+='</div></div>';
+  $("#heat").innerHTML=h;
+}
+
+/* ═══ CHAPTERS ═══ */
+let fSt="all";
+function renderCh(){
+  const q=$("#fq").value.toLowerCase(),fs=$("#fsub").value,fc=$("#fcls").value;
+  let h="";
+  for(const s in SYL){
     if(fs&&fs!==s)continue;
-    for(let c in SYL[s]){
-      let list=SYL[s][c].filter(n=>n.toLowerCase().includes(q));
+    for(const c in SYL[s]){
+      if(fc&&fc!==c)continue;
+      const list=SYL[s][c].filter(x=>{
+        if(!x.toLowerCase().includes(q))return false;
+        if(fSt!=="all"&&getCh(s+"|"+c+"|"+x).s!==+fSt)return false;
+        return true;
+      });
       if(!list.length)continue;
-      h+=`<div style="font-size:11px;color:#8b97b2;text-transform:uppercase;margin:12px 0 6px">● ${s} · ${c}</div>`;
-      list.forEach(n=>{let id=s+"|"+c+"|"+n,st=getCh(id);
-        h+=`<div class="ch" data-s="${st}" data-id="${id}"><span>${n}</span><small>${ST[st]}</small></div>`});
+      h+=`<div class="grp"><span class="dot" style="background:${CLR[s]}"></span>${s} · ${c}</div>`;
+      list.forEach(name=>{
+        const id=s+"|"+c+"|"+name,cs=getCh(id);
+        h+=`<div class="ch" data-s="${cs.s}" data-id="${id}">
+          <span class="nm">${name}</span>
+          <span class="note" data-act="note" title="Note">${cs.note?"📝":"✎"}</span>
+          <span class="tag">${ST[cs.s]}</span></div>`;
+      });
     }
   }
-  $("#chlist").innerHTML=h||'<p style="color:#8b97b2;text-align:center;padding:20px">No chapters found</p>';
+  $("#chlist").innerHTML=h||`<div class="empty"><div class="big">🔍</div>No chapters found</div>`;
 }
+$("#chlist").onclick=e=>{
+  const row=e.target.closest(".ch");if(!row)return;
+  const id=row.dataset.id;
+  if(e.target.dataset.act==="note"){
+    const cur=getCh(id);
+    const note=prompt("Note:",cur.note||"");
+    if(note!==null){S.ch[id]={...cur,note:note.trim()};save();renderCh()}
+    return;
+  }
+  const cur=getCh(id),next=(cur.s+1)%4;
+  S.ch[id]={...cur,s:next,doneAt:next===3?(cur.doneAt||today()):null};
+  save();
+  row.dataset.s=next;row.querySelector(".tag").textContent=ST[next];
+  toast(next===3?"🎉 Mastered!":ST[next]);
+};
 
-/* ========== TASKS ========== */
-function tasks(){
-  let k=$("#td").value||today(),a=S.tk[k]||[];
-  if(!a.length){$("#tlist").innerHTML='<p style="color:#8b97b2;text-align:center;padding:20px">No tasks for this day. Add one above ☝</p>';return}
-  let st=dStat(k);
-  let h=`<div style="display:flex;justify-content:space-between;font-size:12.5px;color:#8b97b2;margin-bottom:8px"><span>${st.d} of ${st.t} done</span><span>${st.p.toFixed(0)}%</span></div><div class="bar" style="margin-bottom:14px"><i style="width:${st.p}%"></i></div>`;
+/* ═══ TASKS ═══ */
+function renderTasks(){
+  const k=$("#td").value||today(),a=S.tk[k]||[];
+  if(!a.length){$("#tlist").innerHTML='<div class="empty"><div class="big">📝</div>No tasks yet</div>';return}
+  const st=dStat(k);
+  let h=`<div style="display:flex;justify-content:space-between;font-size:12.5px;
+    color:var(--mut);margin:6px 2px 8px"><span>${st.d} of ${st.t} done</span>
+    <span>${st.p.toFixed(0)}%</span></div>
+    <div class="bar" style="margin-bottom:16px"><i style="width:${st.p}%"></i></div>`;
   a.forEach(t=>{
-    let col=CLR[t.s]||"#8b97b2";
-    h+=`<div class="task ${t.done?"done":""}"><button class="chk" data-a="t" data-id="${t.id}">✓</button><span>${esc(t.x)}</span>${t.s?`<small style="color:${col};font-size:11px">${t.s}</small>`:""}<button class="del" data-a="d" data-id="${t.id}">×</button></div>`;
+    const col=CLR[t.s]||"#9b8a70";
+    h+=`<div class="task ${t.done?"done":""} ${t.pri==="high"?"pri-high":t.pri==="med"?"pri-med":""}">
+      <button class="chk" data-a="t" data-id="${t.id}">✓</button>
+      <span class="tx">${esc(t.x)}</span>
+      ${t.s?`<span class="chip" style="color:${col}">${t.s}</span>`:""}
+      <button class="del" data-a="d" data-id="${t.id}">×</button></div>`;
   });
   $("#tlist").innerHTML=h;
 }
-const esc=s=>s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-
-/* ========== MONTHLY ========== */
-function monthly(){
-  let ms=new Set(Object.keys(S.tk).map(k=>k.slice(0,7)));ms.add(today().slice(0,7));
-  let arr=[...ms].sort().reverse(),sel=$("#msel"),prev=sel.value;
-  sel.innerHTML=arr.map(m=>`<option value="${m}">${m}</option>`).join("");
-  sel.value=arr.includes(prev)?prev:arr[0];
-  let ym=sel.value,tot=0,dn=0,days={},chD=0;
-  Object.keys(S.tk).forEach(k=>{if(k.slice(0,7)!==ym)return;let a=S.tk[k],d=a.filter(t=>t.done).length;tot+=a.length;dn+=d;days[k]={d,t:a.length,p:a.length?d/a.length*100:0}});
-  Object.values(S.ch).forEach(v=>{if(v&&v.doneAt&&v.doneAt.slice(0,7)===ym)chD++});
-  // Note: we store completedAt only when mastered via tasks—handle in chapter click
-  
-  let p=tot?dn/tot*100:0;
-  $("#mstats").innerHTML=`
-    <div class="stat"><span>Completed</span><b>${dn}/${tot}</b></div>
-    <div class="stat"><span>Rate</span><b>${p.toFixed(1)}%</b></div>
-    <div class="stat"><span>Active Days</span><b>${Object.keys(days).length}</b></div>`;
-  
-  // chart
-  let [y,m]=ym.split("-").map(Number),dim=new Date(y,m,0).getDate();
-  let lb=[],dt=[],cl=[];
-  for(let d=1;d<=dim;d++){let k=ym+"-"+String(d).padStart(2,"0"),r=days[k];lb.push(d);dt.push(r?r.p:0);cl.push(r?(r.p===100?"#2ecc71":"#4d9fff"):"#28334e")}
-  mkBar("c3",lb,dt,cl);
-  
-  // table
-  let rows=[...ms].sort().reverse().map(k=>{
-    let t=0,dn=0,dd={};Object.keys(S.tk).forEach(x=>{if(x.slice(0,7)!==k)return;let a=S.tk[x];t+=a.length;dn+=a.filter(y=>y.done).length;dd[x]=1});
-    let pc=t?dn/t*100:0;
-    return `<tr><td><b>${k}</b></td><td>${dn}/${t}</td><td>${pc.toFixed(0)}%</td><td>${Object.keys(dd).length}</td></tr>`;
-  }).join("");
-  $("#mtbl").innerHTML=`<thead><tr><th>Month</th><th>Tasks</th><th>Rate</th><th>Days</th></tr></thead><tbody>${rows}</tbody>`;
+function addTask(){
+  const x=$("#ti").value.trim();if(!x){$("#ti").focus();return}
+  const k=$("#td").value||today();
+  (S.tk[k]=S.tk[k]||[]).push({id:uid(),x,s:$("#ts").value,pri:$("#tp").value,done:false});
+  save();$("#ti").value="";$("#ti").focus();renderTasks();
 }
-
-/* ========== CHARTS ========== */
-let charts={};
-function mkChart(id,type,lb,dt,col,fill){
-  if(charts[id])charts[id].destroy();
-  charts[id]=new Chart($("#"+id),{type,data:{labels:lb,datasets:[{data:dt,borderColor:col,backgroundColor:fill?col+"33":col,borderWidth:2,tension:.3,fill:fill,pointRadius:3,pointBackgroundColor:col}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,grid:{color:"#28334e"},ticks:{color:"#8b97b2",callback:v=>v+"%"}},x:{grid:{display:false},ticks:{color:"#8b97b2"}}}}});
-}
-function mkBar(id,lb,dt,cl){
-  if(charts[id])charts[id].destroy();
-  charts[id]=new Chart($("#"+id),{type:"bar",data:{labels:lb,datasets:[{data:dt,backgroundColor:cl,borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,grid:{color:"#28334e"},ticks:{color:"#8b97b2",callback:v=>v+"%"}},x:{grid:{display:false},ticks:{color:"#8b97b2"}}}}});
-}
-
-/* ========== NAV ========== */
-function show(t){
-  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("on"));
-  document.querySelectorAll("nav button[data-t]").forEach(b=>b.classList.remove("on"));
-  $("#"+t).classList.add("on");
-  document.querySelector(`nav button[data-t="${t}"]`).classList.add("on");
-  if(t==="dash")dash();if(t==="ch")chapters();if(t==="tk")tasks();if(t==="mo")monthly();
-}
-document.querySelectorAll("nav button[data-t]").forEach(b=>b.onclick=()=>show(b.dataset.t));
-
-/* ========== EVENTS ========== */
-// chapter click
-$("#chlist").onclick=e=>{
-  let r=e.target.closest(".ch");if(!r)return;
-  let id=r.dataset.id,cur=getCh(id),next=(cur+1)%4;
-  S.ch[id]={s:next,doneAt:next===3?today():null};save();
-  r.dataset.s=next;r.querySelector("small").textContent=ST[next];
-};
-$("#fsub").onchange=chapters;$("#fq").oninput=chapters;
-
-// tasks
-$("#td").value=today();
-$("#add").onclick=()=>{
-  let x=$("#ti").value.trim();if(!x)return;
-  let k=$("#td").value||today();(S.tk[k]=S.tk[k]||[]).push({id:Date.now()+"",x,s:$("#ts").value,done:false});
-  save();$("#ti").value="";tasks();
-};
-$("#ti").onkeydown=e=>{if(e.key==="Enter")$("#add").click()};
-$("#td").onchange=tasks;
 $("#tlist").onclick=e=>{
-  let b=e.target.closest("button[data-a]");if(!b)return;
-  let k=$("#td").value||today(),a=S.tk[k]||[],it=a.find(t=>t.id===b.dataset.id);if(!it)return;
-  if(b.dataset.a==="t"){it.done=!it.done;save();tasks()}
-  else{S.tk[k]=a.filter(t=>t.id!==b.dataset.id);if(!S.tk[k].length)delete S.tk[k];save();tasks()}
+  const b=e.target.closest("button[data-a]");if(!b)return;
+  const k=$("#td").value||today(),a=S.tk[k]||[],it=a.find(t=>t.id===b.dataset.id);
+  if(!it)return;
+  if(b.dataset.a==="t"){it.done=!it.done;save();renderTasks()}
+  else{S.tk[k]=a.filter(t=>t.id!==b.dataset.id);if(!S.tk[k].length)delete S.tk[k];save();renderTasks()}
 };
-$("#msel").onchange=monthly;
 
-// export/import
+/* ═══ IMPORT ═══ */
+function pDate(s){
+  s=String(s).trim();
+  let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);
+  m=s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
+  if(m){let y=+m[3];if(y<100)y+=2000;return new Date(y,+m[2]-1,+m[1])}
+  m=s.match(/^(\d{1,2})[\/\-.](\d{1,2})$/);
+  if(m){let d=new Date(new Date().getFullYear(),+m[2]-1,+m[1]);
+    if(d<new Date())d.setFullYear(d.getFullYear()+1);return d}
+  const days=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+  const low=s.toLowerCase();
+  for(let i=0;i<7;i++)if(low.startsWith(days[i].slice(0,3))){
+    const d=new Date();let diff=(i-d.getDay()+7)%7;if(diff===0)diff=7;
+    d.setDate(d.getDate()+diff);return d;
+  }
+  return null;
+}
+function pSub(s){
+  s=s.toLowerCase();
+  if(/\bphy(sics)?\b/.test(s))return 'Physics';
+  if(/\bchem(istry)?\b/.test(s))return 'Chemistry';
+  if(/\bmath(s|ematics)?\b/.test(s))return 'Mathematics';
+  if(/revision/.test(s))return 'Revision';
+  if(/test|mock|dpp/.test(s))return 'Mock Test';
+  return '';
+}
+function parseSchedule(text){
+  const out=[];
+  text.split(/\r?\n/).filter(l=>l.trim()&&!/^#/.test(l.trim())).forEach(line=>{
+    const parts=line.split(/\s*[|,\t]\s*/).map(p=>p.trim()).filter(Boolean);
+    if(parts.length<2)return;
+    let date=null,rest=[];
+    parts.forEach(p=>{const d=pDate(p);if(d&&!date)date=d;else rest.push(p)});
+    if(!date)return;
+    let sub='',topic='';
+    rest.forEach(p=>{const det=pSub(p);if(det&&!sub)sub=det;else if(!topic)topic=p;else topic+=' · '+p});
+    if(!sub)sub='Other';
+    out.push({date:fmt(date),subject:sub,topic:topic||'(no topic)'});
+  });
+  return out;
+}
+let impPending=[];
+$("#impParse").onclick=()=>{
+  const parsed=parseSchedule($("#impText").value);
+  impPending=parsed.map(p=>({date:p.date,x:`${p.subject}: ${p.topic}`,s:p.subject,pri:"high",done:false}));
+  renderImpPreview();
+};
+$("#impDemo").onclick=()=>{
+  $("#impText").value=`2026-09-25 | Physics | Rotational Motion
+2026-09-26 | Chemistry | Electrochemistry
+2026-09-27 | Mathematics | Integrals
+2026-09-28 | Physics | Gravitation
+2026-09-29 | Chemistry | Chemical Kinetics`;
+  $("#impParse").click();
+};
+$("#impClear").onclick=()=>{$("#impText").value="";impPending=[];$("#impPreview").style.display="none"};
+$("#impImg").onclick=()=>$("#impImgIn").click();
+$("#impImgIn").onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  const box=$("#impPreview");box.style.display="block";
+  box.innerHTML='<div class="hint">🔍 Loading OCR…</div>';
+  try{
+    if(typeof Tesseract==="undefined"){
+      await new Promise((res,rej)=>{const s=document.createElement("script");
+        s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+        s.onload=res;s.onerror=rej;document.head.appendChild(s)});
+    }
+    const worker=await Tesseract.createWorker("eng");
+    const{data}=await worker.recognize(f);
+    $("#impText").value=data.text;
+    $("#impParse").click();
+    toast("📸 Image processed");
+  }catch(err){box.innerHTML='<div class="hint" style="color:var(--red)">OCR failed. Try a clearer image.</div>'}
+  e.target.value="";
+};
+function renderImpPreview(){
+  const box=$("#impPreview");
+  if(!impPending.length){box.style.display="none";return}
+  box.style.display="block";
+  const by={};
+  impPending.forEach((x,i)=>(by[x.date]=by[x.date]||[]).push({...x,_i:i}));
+  box.innerHTML=Object.keys(by).sort().map(d=>{
+    const dd=new Date(d+"T00:00:00");
+    const lbl=dd.toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short"});
+    const items=by[d].map(t=>{
+      const col=CLR[t.s]||"#9b8a70";
+      return `<div class="task" style="margin-bottom:6px">
+        <span class="chip" style="color:${col}">${t.s||"—"}</span>
+        <input value="${esc(t.x)}" data-ii="${t._i}" data-field="x"
+          style="flex:1;background:transparent;border:0;color:var(--ink);font:inherit;font-size:13.5px;outline:none;padding:4px 6px">
+        <input type="date" value="${t.date}" data-ii="${t._i}" data-field="date"
+          style="background:var(--paper2);border:1px solid var(--line);border-radius:8px;
+          padding:6px 8px;color:var(--ink);font-size:12px;outline:none">
+        <button class="del" data-ii-del="${t._i}">×</button></div>`;
+    }).join("");
+    return `<div style="margin-bottom:14px;border-left:3px solid var(--acc);padding-left:12px">
+      <div style="font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.8px;
+        font-weight:700;margin-bottom:8px">${lbl}</div>${items}</div>`;
+  }).join("")+
+  `<div class="row" style="margin-top:14px">
+    <input type="text" id="impNewX" placeholder="Add missing…"
+      style="flex:1;min-width:170px;background:var(--paper2);border:1px solid var(--line);
+      border-radius:10px;padding:9px 13px;color:var(--ink);font:inherit;font-size:13.5px;outline:none">
+    <input type="date" id="impNewD" style="background:var(--paper2);border:1px solid var(--line);
+      border-radius:10px;padding:9px;color:var(--ink);font:inherit;font-size:13px;outline:none">
+    <button class="btn" id="impNewAdd">+ Add</button>
+    <button class="btn pri" id="impImport" style="margin-left:auto">✅ Import All</button>
+  </div>`;
+  $("#impNewD").value=impPending[0]?.date||today();
+  box.querySelectorAll("input[data-ii]").forEach(inp=>{
+    inp.oninput=()=>{impPending[+inp.dataset.ii][inp.dataset.field]=inp.value};
+  });
+  box.querySelectorAll("[data-ii-del]").forEach(b=>{
+    b.onclick=()=>{impPending.splice(+b.dataset.iiDel,1);renderImpPreview()};
+  });
+  $("#impNewAdd").onclick=()=>{
+    const x=$("#impNewX").value.trim();if(!x)return;
+    impPending.push({date:$("#impNewD").value||today(),x,s:"Custom",pri:"med",done:false});
+    $("#impNewX").value="";renderImpPreview();
+  };
+  $("#impImport").onclick=()=>{
+    if(!impPending.length)return;
+    impPending.forEach(t=>{
+      (S.tk[t.date]=S.tk[t.date]||[]).push({
+        id:uid(),x:t.x,s:t.s,pri:t.pri||"med",done:false,src:"import"
+      });
+    });
+    save();toast(`✅ Imported ${impPending.length} tasks`);
+    $("#impPreview").style.display="none";$("#impText").value="";impPending=[];
+    renderTasks();
+  };
+}
+
+/* ═══ AI PLANNER ═══ */
+function autoAdvanceSir(){
+  const week=Object.values(S.ai.live).reduce((a,b)=>a+b.length,0);
+  if(!week)return 0;
+  const now=new Date();now.setHours(0,0,0,0);
+  const last=S.ai.lastSync?new Date(S.ai.lastSync):now;
+  const counts={};
+  for(let d=new Date(last);d<=now;d.setDate(d.getDate()+1)){
+    (S.ai.live[d.getDay()]||[]).forEach(slot=>{
+      const[h,m]=slot.t.split(":").map(Number);
+      const ct=new Date(d);ct.setHours(h,m,0,0);
+      if(ct>last&&ct<=new Date())counts[slot.s]=(counts[slot.s]||0)+1;
+    });
+  }
+  let adv=0;
+  Object.keys(counts).forEach(sub=>{
+    if(S.ai.pos[sub]){S.ai.pos[sub].sir=(S.ai.pos[sub].sir||0)+counts[sub];adv+=counts[sub]}
+  });
+  if(adv>0){S.ai.lastSync=now.toISOString();save()}
+  return adv;
+}
+function renderAIInputs(){
+  const adv=autoAdvanceSir();
+  if(adv>0)setTimeout(()=>toast(`📡 Sir advanced ${adv} lectures`),400);
+  $("#aiInputs").innerHTML=SUBJS.map(sub=>{
+    const p=S.ai.pos[sub],gap=Math.max(0,p.sir-p.me);
+    const cls=gap===0?"ok":gap<=3?"pri":gap<=8?"warn":"bad";
+    const txt=gap===0?"✓ up to date":`${gap} behind`;
+    return `<div class="subj-row">
+      <div class="top"><b style="color:${CLR[sub]}">${sub}</b>
+        <span class="badge ${cls}">${txt}</span></div>
+      <div class="ai-2col">
+        <div><label>I finished lecture #</label>
+          <input type="number" min="0" value="${p.me}" data-sub="${sub}" data-k="me"></div>
+        <div><label>Sir taught up to #</label>
+          <input type="number" min="0" value="${p.sir}" data-sub="${sub}" data-k="sir"></div>
+      </div></div>`;
+  }).join("");
+  $$("#aiInputs input[data-sub]").forEach(inp=>{
+    inp.oninput=()=>{S.ai.pos[inp.dataset.sub][inp.dataset.k]=Math.max(0,parseInt(inp.value,10)||0);save()};
+  });
+  renderSchool();renderCmap();renderLcList();
+  $("#lockdown").checked=S.ai.lockdown||false;
+}
+$("#lockdown").onchange=e=>{S.ai.lockdown=e.target.checked;save();toast(e.target.checked?"🔒 Lockdown ON":"Lockdown OFF")};
+const defD=new Date();defD.setDate(defD.getDate()+30);
+$("#aiDeadline").value=fmt(defD);
+
+function renderSchool(){
+  $("#scStart").value=S.ai.school.start;
+  $("#scEnd").value=S.ai.school.end;
+  $("#scDays").innerHTML=DAYS.map((l,i)=>{
+    const on=S.ai.school.days.includes(i);
+    return `<button class="pill ${on?'on':''}" data-scd="${i}">${l}</button>`;
+  }).join("");
+  $$("#scDays [data-scd]").forEach(b=>{
+    b.onclick=()=>{
+      const i=+b.dataset.scd;
+      const arr=S.ai.school.days;
+      if(arr.includes(i))S.ai.school.days=arr.filter(x=>x!==i);
+      else S.ai.school.days=[...arr,i].sort();
+      save();renderSchool();
+    };
+  });
+  $("#scLeave").checked=S.ai.school.leaves.includes(today());
+  renderSchoolSum();
+}
+function renderSchoolSum(){
+  const s=S.ai.school;
+  const[sh,sm]=s.start.split(":").map(Number);
+  const[eh,em]=s.end.split(":").map(Number);
+  const hrs=((eh*60+em)-(sh*60+sm))/60;
+  const isLeave=s.leaves.includes(today());
+  const isSchool=s.days.includes(new Date().getDay());
+  let label,col;
+  if(!isSchool){label="🏖️ No school today";col="var(--green)"}
+  else if(isLeave){label=`🎉 Leave day — ${hrs}h freed`;col="var(--green)"}
+  else{label=`📚 School day — ${hrs}h taken`;col="var(--gold)"}
+  $("#scSum").innerHTML=`<b style="color:${col}">${label}</b> · Days: <b>${s.days.map(i=>DAYS[i]).join(", ")||"none"}</b>`;
+}
+["scStart","scEnd"].forEach(id=>{
+  $("#"+id).onchange=e=>{S.ai.school[id==="scStart"?"start":"end"]=e.target.value;save();renderSchoolSum()};
+});
+$("#scLeave").onchange=e=>{
+  const tk=today();
+  if(e.target.checked){if(!S.ai.school.leaves.includes(tk))S.ai.school.leaves.push(tk)}
+  else S.ai.school.leaves=S.ai.school.leaves.filter(d=>d!==tk);
+  save();renderSchoolSum();
+  toast(e.target.checked?"🎉 Enjoy the leave!":"School day restored");
+};
+function freeHours(date){
+  const s=S.ai.school;
+  const base=parseFloat($("#aiHours").value)||4;
+  if(!s.days.includes(date.getDay()))return base;
+  if(s.leaves.includes(fmt(date)))return base;
+  const[sh,sm]=s.start.split(":").map(Number);
+  const[eh,em]=s.end.split(":").map(Number);
+  const sch=((eh*60+em)-(sh*60+sm))/60;
+  return Math.max(1,base*0.6-Math.max(0,sch-4)*0.1);
+}
+function renderCmap(){
+  $("#cmapList").innerHTML=SUBJS.map(sub=>{
+    const rows=S.ai.chmap[sub]||[],col=CLR[sub],pos=S.ai.pos[sub];
+    const html=rows.map((r,i)=>{
+      const total=r.to-r.from+1;
+      const done=Math.max(0,Math.min(total,pos.me-r.from+1));
+      const pct=total?Math.round(done/total*100):0;
+      const state=pct===100?"✅":pct>0?`📖 ${pct}%`:"⏳";
+      return `<div class="cm-row">
+        <input type="text" value="${esc(r.name)}" data-cm="${sub}|${i}|name">
+        <input type="number" value="${r.from}" data-cm="${sub}|${i}|from" min="1">
+        <input type="number" value="${r.to}" data-cm="${sub}|${i}|to" min="1">
+        <div><div class="bar" style="height:5px;margin-top:0"><i style="width:${pct}%;background:${col}"></i></div>
+          <div style="font-size:10.5px;color:var(--mut);margin-top:2px">${done}/${total} · ${state}</div></div>
+        <button class="del" data-cmd="${sub}|${i}" style="font-size:16px">×</button>
+      </div>`;
+    }).join("");
+    return `<div style="margin-bottom:18px">
+      <div style="font-size:11.5px;color:${col};text-transform:uppercase;letter-spacing:.8px;
+        font-weight:700;margin-bottom:8px">● ${sub}</div>
+      ${rows.length?html:'<div style="font-size:12.5px;color:var(--mut);padding:6px 0">No chapters mapped yet.</div>'}
+      <div class="cm-row" style="margin-top:8px">
+        <input type="text" id="cn-${sub}" placeholder="Chapter name…"
+          style="background:var(--paper2);border:1px solid var(--line)">
+        <input type="number" id="cf-${sub}" placeholder="from"
+          style="background:var(--paper2);border:1px solid var(--line)">
+        <input type="number" id="ct-${sub}" placeholder="to"
+          style="background:var(--paper2);border:1px solid var(--line)">
+        <button class="btn" data-cmadd="${sub}" style="padding:6px 10px;font-size:12.5px">+ Add</button>
+        <span></span>
+      </div></div>`;
+  }).join("");
+  $$("#cmapList input[data-cm]").forEach(inp=>{
+    inp.oninput=()=>{
+      const[sub,i,f]=inp.dataset.cm.split("|");
+      const idx=+i;
+      if(!S.ai.chmap[sub][idx])return;
+      S.ai.chmap[sub][idx][f]=f==="name"?inp.value:(parseInt(inp.value,10)||0);
+    };
+    inp.onblur=()=>{save();renderCmap()};
+  });
+  $$("#cmapList [data-cmd]").forEach(b=>{
+    b.onclick=()=>{
+      const[sub,i]=b.dataset.cmd.split("|");
+      S.ai.chmap[sub].splice(+i,1);
+      save();renderCmap();
+    };
+  });
+  $$("#cmapList [data-cmadd]").forEach(b=>{
+    b.onclick=()=>{
+      const sub=b.dataset.cmadd;
+      const name=$("#cn-"+sub).value.trim();
+      const from=parseInt($("#cf-"+sub).value,10);
+      const to=parseInt($("#ct-"+sub).value,10);
+      if(!name||!from||!to||to<from){toast("Enter name + valid range");return}
+      S.ai.chmap[sub].push({name,from,to});
+      S.ai.chmap[sub].sort((a,b)=>a.from-b.from);
+      save();renderCmap();toast(`✓ ${name}`);
+    };
+  });
+}
+$("#cmapAuto").onclick=()=>{
+  SUBJS.forEach(sub=>{
+    if((S.ai.chmap[sub]||[]).length)return;
+    const list=SYL[sub]["Class 11"].concat(SYL[sub]["Class 12"]);
+    const total=Math.max(S.ai.pos[sub].sir,1);
+    const per=Math.max(2,Math.round(total/Math.max(list.length,1)));
+    let n=1;
+    S.ai.chmap[sub]=list.slice(0,Math.ceil(total/per)).map(name=>{
+      const from=n,to=n+per-1;n=to+1;return{name,from,to};
+    });
+  });
+  save();renderCmap();toast("⚡ Auto-filled — edit ranges");
+};
+function renderLcList(){
+  const total=Object.values(S.ai.live).reduce((a,b)=>a+b.length,0);
+  if(!total){$("#lcList").innerHTML='<div class="hint">No live classes added yet.</div>';return}
+  $("#lcList").innerHTML=DAYS.map((d,i)=>{
+    const arr=S.ai.live[i]||[];
+    if(!arr.length)return "";
+    return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;flex-wrap:wrap">
+      <b style="width:38px;color:var(--mut);font-size:11.5px;text-transform:uppercase">${d}</b>
+      ${arr.map((c,j)=>`<span style="background:var(--paper2);padding:5px 11px;border-radius:99px;
+        border:1px solid var(--line);font-size:12px;display:inline-flex;align-items:center;gap:6px">
+        <span style="color:${CLR[c.s]||'#000'}">●</span><b>${c.t}</b> ${c.s}
+        <button data-lc-del="${i}-${j}" style="background:none;border:0;color:var(--mut);
+          cursor:pointer;font-size:15px;line-height:1;padding:0 0 0 4px">×</button></span>`).join("")}
+    </div>`;
+  }).join("");
+  $$("#lcList [data-lc-del]").forEach(b=>{
+    b.onclick=()=>{
+      const[i,j]=b.dataset.lcDel.split("-").map(Number);
+      S.ai.live[i].splice(j,1);
+      save();renderLcList();toast("Removed");
+    };
+  });
+}
+$("#lcAdd").onclick=()=>{
+  const i=+$("#lcDay").value,s=$("#lcSub").value,t=$("#lcTime").value;
+  S.ai.live[i].push({s,t});
+  S.ai.live[i].sort((a,b)=>a.t.localeCompare(b.t));
+  save();renderLcList();toast(`📡 ${DAYS[i]} ${t} ${s}`);
+};
+
+let aiPlan=[];
+function generateAIPlan(caughtUp){
+  const deadline=new Date($("#aiDeadline").value||today());
+  const lockdown=$("#lockdown").checked;
+  const now=new Date();now.setHours(0,0,0,0);
+  const daysAvail=Math.max(1,Math.ceil((deadline-now)/86400000));
+  const backlogs={};
+  let totalBacklog=0;
+  SUBJS.forEach(sub=>{
+    const p=S.ai.pos[sub];
+    const gap=caughtUp?0:Math.max(0,p.sir-p.me);
+    backlogs[sub]={gap,from:p.me+1,to:p.sir};
+    totalBacklog+=gap;
+  });
+  const intensity=totalBacklog===0?"revision":
+                  totalBacklog<=daysAvail?"light":
+                  totalBacklog<=daysAvail*2?"medium":"aggressive";
+  const dCol={revision:"var(--green)",light:"var(--blue)",medium:"var(--gold)",aggressive:"var(--red)"};
+  const dMsg=lockdown?
+    {revision:"🎉 Backlog cleared — unlock live classes.",
+     light:"🔒 Light lockdown — done in a few days.",
+     medium:"🔒 Balanced lockdown pace.",
+     aggressive:"🔒 Aggressive — skip everything else."}:
+    {revision:"🎉 Caught up! Revision + mocks.",
+     light:"✨ Light load — finish before deadline.",
+     medium:"💪 Balanced pace.",
+     aggressive:"🔥 Aggressive — lectures only."};
+  $("#aiDiag").innerHTML=`<div class="ai-block">
+    <div class="hdr">Diagnosis</div>
+    <div style="font-size:14px;font-weight:600;color:${dCol[intensity]};margin-bottom:12px;
+      font-family:Georgia,serif">${dMsg[intensity]}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;font-size:12.5px">
+      <div><span style="color:var(--mut)">Backlog</span><br><b>${totalBacklog} lec</b></div>
+      <div><span style="color:var(--mut)">Days left</span><br><b>${daysAvail}</b></div>
+      <div><span style="color:var(--mut)">Today free</span><br><b>${freeHours(new Date()).toFixed(1)}h</b></div>
+      ${lockdown?`<div><span style="color:var(--mut)">Mode</span><br><b style="color:var(--red)">🔒 Lockdown</b></div>`:""}
+    </div></div>`;
+  aiPlan=[];
+  const queues={};
+  SUBJS.forEach(sub=>{
+    const b=backlogs[sub];
+    if(!caughtUp&&b.gap>0){
+      queues[sub]=[];
+      for(let i=b.from;i<=b.to;i++){
+        const ch=chapterOf(sub,i);
+        queues[sub].push({lec:i,ch:ch?ch.name:null});
+      }
+    }
+  });
+  const cycle=SUBJS.filter(s=>queues[s]&&queues[s].length);
+  for(let d=0;d<Math.min(daysAvail,45);d++){
+    const day=new Date(now);day.setDate(day.getDate()+d);
+    const dk=fmt(day),dow=day.getDay(),sun=dow===0;
+    const fh=freeHours(day);
+    const slots=Math.max(1,Math.floor(fh/1.5));
+    if(!lockdown){
+      (S.ai.live[dow]||[]).forEach(lc=>{
+        aiPlan.push({date:dk,x:`🔴 LIVE ${lc.t} — ${lc.s}`,s:lc.s,pri:"high",done:false,live:true,time:lc.t});
+      });
+    }
+    if(sun&&!lockdown&&intensity!=="aggressive"&&totalBacklog<=daysAvail*1.5){
+      aiPlan.push({date:dk,x:"Weekly revision — all subjects",s:"Revision",pri:"high",done:false});
+      aiPlan.push({date:dk,x:"Mock test / DPP solve",s:"Mock Test",pri:"high",done:false});
+      continue;
+    }
+    let n=sun?Math.max(1,Math.floor(slots/2)):slots;
+    for(let k=0;k<n&&cycle.length;k++){
+      cycle.sort((a,b)=>(queues[b]?.length||0)-(queues[a]?.length||0));
+      const sub=cycle[k%cycle.length];
+      if(!queues[sub]||!queues[sub].length)continue;
+      const it=queues[sub].shift();
+      const lbl=it.ch?`${sub} — ${it.ch} · L${it.lec}`:`${sub} — Lecture ${it.lec}`;
+      aiPlan.push({date:dk,x:lbl,s:sub,pri:"high",done:false,lec:it.lec,ch:it.ch});
+      if(intensity!=="aggressive"){
+        const dl=it.ch?`${sub} — ${it.ch} · DPP ${it.lec}`:`${sub} — DPP ${it.lec}`;
+        aiPlan.push({date:dk,x:dl,s:sub,pri:"med",done:false});
+      }
+    }
+    if(intensity!=="aggressive"&&!sun){
+      aiPlan.push({date:dk,x:"Revision — yesterday's topics",s:"Revision",pri:"low",done:false});
+    }
+  }
+  if(caughtUp&&!aiPlan.length){
+    for(let d=0;d<Math.min(daysAvail,21);d++){
+      const day=new Date(now);day.setDate(day.getDate()+d);
+      const dk=fmt(day);
+      (S.ai.live[day.getDay()]||[]).forEach(lc=>{
+        aiPlan.push({date:dk,x:`🔴 LIVE ${lc.t} — ${lc.s}`,s:lc.s,pri:"high",done:false,live:true,time:lc.t});
+      });
+      aiPlan.push({date:dk,x:"NCERT + formula revision",s:"Revision",pri:"med",done:false});
+      if(d%3===0)aiPlan.push({date:dk,x:"Mock test — full syllabus",s:"Mock Test",pri:"high",done:false});
+    }
+  }
+  renderPlan();
+  $("#planBox").style.display="block";
+  $("#planBox").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function renderPlan(){
+  const box=$("#planList");
+  if(!aiPlan.length){box.innerHTML='<div class="empty">No tasks generated</div>';return}
+  const by={};
+  aiPlan.forEach((t,i)=>(by[t.date]=by[t.date]||[]).push({...t,_i:i}));
+  box.innerHTML=Object.keys(by).sort().map(d=>{
+    const dd=new Date(d+"T00:00:00");
+    const lbl=dd.toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short"});
+    const items=by[d].map(t=>{
+      const col=CLR[t.s]||"#9b8a70";
+      return `<div class="task" style="margin-bottom:6px">
+        <span class="chip" style="color:${col}">${t.s||"—"}</span>
+        <input value="${esc(t.x)}" data-pi="${t._i}" data-field="x"
+          style="flex:1;background:transparent;border:0;color:var(--ink);font:inherit;font-size:13.5px;outline:none;padding:4px 6px">
+        <input type="date" value="${t.date}" data-pi="${t._i}" data-field="date"
+          style="background:var(--paper2);border:1px solid var(--line);border-radius:8px;
+          padding:6px 8px;color:var(--ink);font-size:12px;outline:none">
+        <button class="del" data-pi-del="${t._i}">×</button></div>`;
+    }).join("");
+    return `<div style="margin-bottom:14px;border-left:3px solid var(--acc);padding-left:12px">
+      <div style="font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.8px;
+        font-weight:700;margin-bottom:8px">${lbl}</div>${items}</div>`;
+  }).join("");
+  box.querySelectorAll("input[data-pi]").forEach(inp=>{
+    inp.oninput=()=>{aiPlan[+inp.dataset.pi][inp.dataset.field]=inp.value};
+  });
+  box.querySelectorAll("[data-pi-del]").forEach(b=>{
+    b.onclick=()=>{aiPlan.splice(+b.dataset.piDel,1);renderPlan()};
+  });
+}
+$("#planAdd").onclick=()=>{
+  const x=$("#planNew").value.trim();if(!x)return;
+  aiPlan.push({date:$("#planNewDate").value||today(),x,s:"Custom",pri:"med",done:false});
+  $("#planNew").value="";renderPlan();
+};
+$("#planNew").onkeydown=e=>{if(e.key==="Enter")$("#planAdd").click()};
+$("#planImport").onclick=()=>{
+  if(!aiPlan.length)return;
+  Object.keys(S.tk).forEach(k=>{
+    S.tk[k]=(S.tk[k]||[]).filter(t=>t.src!=="ai");
+    if(!S.tk[k].length)delete S.tk[k];
+  });
+  let n=0;
+  aiPlan.forEach(t=>{
+    (S.tk[t.date]=S.tk[t.date]||[]).push({
+      id:uid(),x:t.x,s:t.s,pri:t.pri||"high",done:false,src:"ai",
+      live:t.live||false,time:t.time||null
+    });
+    n++;
+  });
+  save();toast(`✅ Imported ${n} tasks`);
+  $("#planBox").style.display="none";aiPlan=[];
+  show("tk");
+};
+$("#aiGen").onclick=()=>generateAIPlan(false);
+$("#aiCatch").onclick=()=>generateAIPlan(true);
+
+/* ═══ MONTHLY ═══ */
+function renderMonthly(){
+  const set=new Set(Object.keys(S.tk).map(k=>k.slice(0,7)));
+  Object.keys(S.ses).forEach(k=>set.add(k.slice(0,7)));
+  set.add(today().slice(0,7));
+  const arr=[...set].sort().reverse(),sel=$("#msel"),prev=sel.value;
+  sel.innerHTML=arr.map(m=>`<option value="${m}">${mLabel(m)}</option>`).join("");
+  sel.value=arr.includes(prev)?prev:arr[0];
+  const ym=sel.value,st=monthStat(ym);
+  $("#mstats").innerHTML=`
+    <div class="stat"><span class="ic">✅</span><span class="lb">Tasks Done</span>
+      <span class="vl">${st.dn}<small>/${st.tot}</small></span></div>
+    <div class="stat"><span class="ic">📊</span><span class="lb">Rate</span>
+      <span class="vl">${st.p.toFixed(1)}<small>%</small></span>
+      <div class="bar"><i style="width:${st.p}%"></i></div></div>
+    <div class="stat"><span class="ic">📅</span><span class="lb">Active Days</span>
+      <span class="vl">${st.active}</span></div>
+    <div class="stat"><span class="ic">🏆</span><span class="lb">Chapters</span>
+      <span class="vl" style="color:var(--green)">${st.chD}</span></div>`;
+  const[y,m]=ym.split("-").map(Number),dim=new Date(y,m,0).getDate();
+  const lb=[],dt=[],cl=[];
+  for(let d=1;d<=dim;d++){
+    const k=ym+"-"+pad(d),r=st.days[k];
+    lb.push(d);dt.push(r?r.p:0);
+    cl.push(r?(r.p===100?"#5a7d3f":"#8b5a2b"):"#ede2c9");
+  }
+  bar("c3",lb,dt,cl);
+  const rows=arr.map(k=>{
+    const m=monthStat(k);
+    return `<tr style="border-bottom:1px solid var(--line)">
+      <td style="padding:10px"><b>${mLabel(k)}</b></td>
+      <td style="padding:10px">${m.dn}/${m.tot}</td>
+      <td style="padding:10px;min-width:120px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="bar" style="flex:1;height:5px;margin:0"><i style="width:${m.p}%"></i></div>
+          <span style="font-size:12px;color:var(--mut)">${m.p.toFixed(0)}%</span></div></td>
+      <td style="padding:10px">${m.active}</td>
+      <td style="padding:10px;color:var(--green)">${m.chD}</td></tr>`;
+  }).join("");
+  $("#mtbl").innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:13.5px">
+    <thead><tr style="border-bottom:1px solid var(--line)">
+      <th style="text-align:left;padding:10px;font-size:11px;color:var(--mut);
+        text-transform:uppercase;letter-spacing:.8px">Month</th>
+      <th style="text-align:left;padding:10px;font-size:11px;color:var(--mut);
+        text-transform:uppercase;letter-spacing:.8px">Tasks</th>
+      <th style="text-align:left;padding:10px;font-size:11px;color:var(--mut);
+        text-transform:uppercase;letter-spacing:.8px">Rate</th>
+      <th style="text-align:left;padding:10px;font-size:11px;color:var(--mut);
+        text-transform:uppercase;letter-spacing:.8px">Days</th>
+      <th style="text-align:left;padding:10px;font-size:11px;color:var(--mut);
+        text-transform:uppercase;letter-spacing:.8px">Chapters</th>
+    </tr></thead><tbody>${rows}</tbody></table>`;
+}
+$("#msel").onchange=renderMonthly;
+
+/* ═══ NAV + EVENTS ═══ */
+function show(t){
+  $$(".panel").forEach(p=>p.classList.remove("on"));
+  $$(".tabs button").forEach(b=>b.classList.remove("on"));
+  $("#"+t).classList.add("on");
+  document.querySelector(`.tabs button[data-t="${t}"]`).classList.add("on");
+  if(t==="dash")renderDash();
+  if(t==="ch")renderCh();
+  if(t==="tk")renderTasks();
+  if(t==="ai")renderAIInputs();
+  if(t==="mo")renderMonthly();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+$$(".tabs button").forEach(b=>b.onclick=()=>show(b.dataset.t));
+$("#fq").oninput=renderCh;
+$("#fsub").onchange=renderCh;
+$("#fcls").onchange=renderCh;
+$$(".pill[data-st]").forEach(p=>p.onclick=()=>{
+  $$(".pill[data-st]").forEach(x=>x.classList.remove("on"));
+  p.classList.add("on");fSt=p.dataset.st;renderCh();
+});
+$("#td").value=today();
+$("#td").onchange=renderTasks;
+$("#add").onclick=addTask;
+$("#ti").onkeydown=e=>{if(e.key==="Enter")addTask()};
 $("#exp").onclick=()=>{
-  let b=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
-  let a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="jee-"+today()+".json";a.click();
+  const b=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(b);
+  a.download="study-backup-"+today()+".json";
+  a.click();URL.revokeObjectURL(a.href);
+  toast("✓ Backup downloaded");
 };
 $("#imp").onclick=()=>$("#file").click();
 $("#file").onchange=e=>{
-  let f=e.target.files[0];if(!f)return;
-  let r=new FileReader();r.onload=ev=>{
-    try{let d=JSON.parse(ev.target.result);if(!confirm("Replace current data?"))return;S=d;save();show("dash")}catch{alert("Bad file")}
-  };r.readAsText(f);
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(!d.ch&&!d.tk)throw 0;
+      if(!confirm("Replace all current data?"))return;
+      localStorage.setItem(KEY,JSON.stringify(d));
+      location.reload();
+    }catch{alert("Invalid file")}
+  };
+  r.readAsText(f);e.target.value="";
 };
+document.addEventListener("keydown",e=>{
+  const inI=["INPUT","TEXTAREA","SELECT"].includes(e.target.tagName);
+  if(e.key==="/"&&!inI){e.preventDefault();show("ch");$("#fq").focus()}
+  if(e.key.toLowerCase()==="n"&&!inI&&!e.ctrlKey&&!e.metaKey){show("tk");$("#ti").focus()}
+  if(!inI&&e.key>="1"&&e.key<="5"){
+    const t=["dash","ch","tk","ai","mo"][+e.key-1];
+    if(t)show(t);
+  }
+});
 
-/* ========== INIT ========== */
-Object.keys(SYL).forEach(s=>$("#fsub").insertAdjacentHTML("beforeend",`<option>${s}</option>`));
-dash();
+/* ═══ INIT ═══ */
+SUBJS.forEach(s=>$("#fsub").insertAdjacentHTML("beforeend",`<option>${s}</option>`));
+renderDash();
 </script>
 </body>
 </html>
