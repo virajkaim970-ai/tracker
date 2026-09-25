@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JEE Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;font-family:system-ui,sans-serif}
+body{background:#0e1320;color:#e7edf9;padding:16px;max-width:1000px;margin:auto}
+h1{font-size:20px;margin-bottom:14px}
+nav{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+nav button{background:#1e2941;border:1px solid #28334e;color:#8b97b2;padding:8px 14px;border-radius:9px;cursor:pointer;font-size:13px}
+nav button.on{background:#4d9fff;color:#fff;border-color:#4d9fff}
+.panel{display:none}.panel.on{display:block}
+.card{background:#182135;border:1px solid #28334e;border-radius:12px;padding:16px;margin-bottom:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{background:#131a2a;padding:12px;border-radius:10px}
+.stat b{font-size:24px;display:block;color:#4d9fff}
+.stat span{font-size:11px;color:#8b97b2;text-transform:uppercase}
+.bar{height:6px;background:#0b1120;border-radius:99px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:#4d9fff;transition:.4s}
+.ch{display:flex;justify-content:space-between;padding:9px 12px;margin-bottom:5px;background:#131a2a;border-left:3px solid #28334e;border-radius:8px;cursor:pointer;font-size:13.5px}
+.ch[data-s="1"]{border-color:#f5b942}.ch[data-s="2"]{border-color:#4d9fff}.ch[data-s="3"]{border-color:#2ecc71;opacity:.7}
+.ch small{color:#8b97b2;font-size:11px}
+input,select,button.b{background:#131a2a;border:1px solid #28334e;color:#e7edf9;padding:9px 12px;border-radius:9px;font-size:13.5px;outline:none}
+input:focus{border-color:#4d9fff}
+button.b{cursor:pointer;background:#4d9fff;border-color:#4d9fff;font-weight:600}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.row input[type=text]{flex:1;min-width:180px}
+.task{display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;background:#131a2a;border-radius:9px;font-size:13.5px}
+.task.done span{text-decoration:line-through;color:#8b97b2}
+.chk{width:20px;height:20px;border-radius:6px;border:2px solid #28334e;background:none;color:transparent;cursor:pointer;flex:none}
+.task.done .chk{background:#2ecc71;border-color:#2ecc71;color:#06210f}
+.task span{flex:1}
+.del{background:none;border:0;color:#8b97b2;font-size:18px;cursor:pointer}
+.del:hover{color:#ff5c7a}
+canvas{max-height:240px}
+table{width:100%;font-size:13px;border-collapse:collapse}
+th,td{padding:9px;text-align:left;border-bottom:1px solid #28334e}
+th{color:#8b97b2;font-size:11px;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<h1>📚 JEE Tracker</h1>
+<nav>
+  <button data-t="dash" class="on">Dashboard</button>
+  <button data-t="ch">Chapters</button>
+  <button data-t="tk">Tasks</button>
+  <button data-t="mo">Monthly</button>
+  <button id="exp" style="margin-left:auto">⬇ Export</button>
+  <button id="imp">⬆ Import</button>
+  <input type="file" id="file" hidden accept=".json">
+</nav>
+
+<!-- DASHBOARD -->
+<div id="dash" class="panel on">
+  <div class="card"><div class="stats" id="stats"></div></div>
+  <div class="card"><h3 style="font-size:13px;color:#8b97b2;margin-bottom:10px">LAST 14 DAYS</h3><canvas id="c1"></canvas></div>
+  <div class="card"><h3 style="font-size:13px;color:#8b97b2;margin-bottom:10px">SUBJECT PROGRESS</h3><div id="subj"></div></div>
+</div>
+
+<!-- CHAPTERS -->
+<div id="ch" class="panel">
+  <div class="card">
+    <div class="row">
+      <select id="fsub"><option value="">All Subjects</option></select>
+      <input type="text" id="fq" placeholder="Search chapter...">
+    </div>
+    <div id="chlist"></div>
+    <p style="font-size:12px;color:#8b97b2;margin-top:10px">Click a chapter to cycle: Not Started → Learning → Revised → Mastered</p>
+  </div>
+</div>
+
+<!-- TASKS -->
+<div id="tk" class="panel">
+  <div class="card">
+    <div class="row">
+      <input type="date" id="td">
+      <input type="text" id="ti" placeholder="Today's task...">
+      <select id="ts"><option value="">Subject</option><option>Physics</option><option>Chemistry</option><option>Mathematics</option><option>Revision</option><option>Mock Test</option></select>
+      <button class="b" id="add">+ Add</button>
+    </div>
+    <div id="tlist"></div>
+  </div>
+</div>
+
+<!-- MONTHLY -->
+<div id="mo" class="panel">
+  <div class="card">
+    <div class="row"><select id="msel"></select></div>
+    <div class="stats" id="mstats"></div>
+    <canvas id="c3" style="margin-top:16px"></canvas>
+  </div>
+  <div class="card"><table id="mtbl"></table></div>
+</div>
+
+<script>
+/* ========== SYLLABUS (edit freely) ========== */
+const SYL={
+Physics:{
+"Class 11":["Units & Measurements","Kinematics","Laws of Motion","Work Energy & Power","Rotational Motion","Gravitation","Mechanical Properties of Solids","Mechanical Properties of Fluids","Thermal Properties","Thermodynamics","Kinetic Theory","Oscillations","Waves"],
+"Class 12":["Electric Charges & Fields","Electrostatic Potential","Current Electricity","Moving Charges & Magnetism","Magnetism & Matter","EM Induction","Alternating Current","EM Waves","Ray Optics","Wave Optics","Dual Nature of Radiation","Atoms","Nuclei","Semiconductors"]},
+Chemistry:{
+"Class 11":["Basic Concepts","Structure of Atom","Periodicity","Chemical Bonding","States of Matter","Thermodynamics","Equilibrium","Redox Reactions","Hydrogen","s-Block","p-Block 13&14","Organic Basics","Hydrocarbons","Environmental Chemistry"],
+"Class 12":["Solid State","Solutions","Electrochemistry","Chemical Kinetics","Surface Chemistry","Isolation of Elements","p-Block 15-18","d & f Block","Coordination Compounds","Haloalkanes","Alcohols Phenols Ethers","Aldehydes Ketones","Amines","Biomolecules","Polymers","Everyday Life"]},
+Mathematics:{
+"Class 11":["Sets","Relations & Functions","Trigonometry","Mathematical Induction","Complex Numbers","Linear Inequalities","Permutations & Combinations","Binomial Theorem","Sequences & Series","Straight Lines","Conic Sections","3D Geometry","Limits & Derivatives","Mathematical Reasoning","Statistics","Probability"],
+"Class 12":["Relations & Functions","Inverse Trig","Matrices","Determinants","Continuity & Differentiability","Application of Derivatives","Integrals","Application of Integrals","Differential Equations","Vector Algebra","3D Geometry","Linear Programming","Probability"]}
+};
+
+const ST=["Not Started","Learning","Revised","Mastered"];
+const W=[0,.35,.7,1];
+const CLR={Physics:"#4d9fff",Chemistry:"#2ecc71",Mathematics:"#f5a742"};
+const KEY="jee-tracker";
+
+/* ========== STATE ========== */
+let S=JSON.parse(localStorage.getItem(KEY)||'{"ch":{},"tk":{}}');
+const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
+const $=s=>document.querySelector(s);
+const today=()=>new Date().toISOString().slice(0,10);
+
+/* ========== HELPERS ========== */
+const allCh=()=>{let o=[];for(let s in SYL)for(let c in SYL[s])SYL[s][c].forEach(n=>o.push({id:s+"|"+c+"|"+n,s,c,n}));return o};
+const getCh=id=>S.ch[id]||0;
+const dStat=k=>{let a=S.tk[k]||[],d=a.filter(t=>t.done).length;return{t:a.length,d,p:a.length?d/a.length*100:0}};
+
+/* ========== DASHBOARD ========== */
+function dash(){
+  let tot=0,earn=0,mast=0,byS={};for(let s in CLR)byS[s]={e:0,c:0,m:0};
+  allCh().forEach(x=>{let st=getCh(x.id);tot++;earn+=W[st];if(st==3)mast++;byS[x.s].e+=W[st];byS[x.s].c++;if(st==3)byS[x.s].m++});
+  let pct=tot?earn/tot*100:0;
+  let t=dStat(today());
+  // streak
+  let d=new Date(),stk=0;if(!(S.tk[today()]||[]).some(x=>x.done))d.setDate(d.getDate()-1);
+  while((S.tk[d.toISOString().slice(0,10)]||[]).some(x=>x.done)){stk++;d.setDate(d.getDate()-1)}
+  
+  $("#stats").innerHTML=`
+    <div class="stat"><span>Syllabus</span><b>${pct.toFixed(1)}%</b><div class="bar"><i style="width:${pct}%"></i></div></div>
+    <div class="stat"><span>Mastered</span><b>${mast}/${tot}</b><div class="bar"><i style="width:${tot?mast/tot*100:0}%"></i></div></div>
+    <div class="stat"><span>Today</span><b>${t.d}/${t.t}</b><div class="bar"><i style="width:${t.p}%"></i></div></div>
+    <div class="stat"><span>Streak</span><b>${stk} days</b><div class="bar"><i style="width:${Math.min(stk/30*100,100)}%"></i></div></div>`;
+  
+  // subject bars
+  $("#subj").innerHTML=Object.keys(CLR).map(s=>{
+    let o=byS[s],p=o.c?o.e/o.c*100:0;
+    return `<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><b style="color:${CLR[s]}">${s}</b><span style="color:#8b97b2">${o.m}/${o.c} · ${p.toFixed(0)}%</span></div><div class="bar"><i style="width:${p}%;background:${CLR[s]}"></i></div></div>`;
+  }).join("");
+  
+  // daily chart
+  let lb=[],dt=[];
+  for(let i=13;i>=0;i--){let d=new Date();d.setDate(d.getDate()-i);let k=d.toISOString().slice(0,10);lb.push(d.getDate()+"/"+(d.getMonth()+1));dt.push(dStat(k).p)}
+  mkChart("c1","line",lb,dt,"#4d9fff",true);
+}
+
+/* ========== CHAPTERS ========== */
+function chapters(){
+  let fs=$("#fsub").value,q=$("#fq").value.toLowerCase(),h="";
+  for(let s in SYL){
+    if(fs&&fs!==s)continue;
+    for(let c in SYL[s]){
+      let list=SYL[s][c].filter(n=>n.toLowerCase().includes(q));
+      if(!list.length)continue;
+      h+=`<div style="font-size:11px;color:#8b97b2;text-transform:uppercase;margin:12px 0 6px">● ${s} · ${c}</div>`;
+      list.forEach(n=>{let id=s+"|"+c+"|"+n,st=getCh(id);
+        h+=`<div class="ch" data-s="${st}" data-id="${id}"><span>${n}</span><small>${ST[st]}</small></div>`});
+    }
+  }
+  $("#chlist").innerHTML=h||'<p style="color:#8b97b2;text-align:center;padding:20px">No chapters found</p>';
+}
+
+/* ========== TASKS ========== */
+function tasks(){
+  let k=$("#td").value||today(),a=S.tk[k]||[];
+  if(!a.length){$("#tlist").innerHTML='<p style="color:#8b97b2;text-align:center;padding:20px">No tasks for this day. Add one above ☝</p>';return}
+  let st=dStat(k);
+  let h=`<div style="display:flex;justify-content:space-between;font-size:12.5px;color:#8b97b2;margin-bottom:8px"><span>${st.d} of ${st.t} done</span><span>${st.p.toFixed(0)}%</span></div><div class="bar" style="margin-bottom:14px"><i style="width:${st.p}%"></i></div>`;
+  a.forEach(t=>{
+    let col=CLR[t.s]||"#8b97b2";
+    h+=`<div class="task ${t.done?"done":""}"><button class="chk" data-a="t" data-id="${t.id}">✓</button><span>${esc(t.x)}</span>${t.s?`<small style="color:${col};font-size:11px">${t.s}</small>`:""}<button class="del" data-a="d" data-id="${t.id}">×</button></div>`;
+  });
+  $("#tlist").innerHTML=h;
+}
+const esc=s=>s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ========== MONTHLY ========== */
+function monthly(){
+  let ms=new Set(Object.keys(S.tk).map(k=>k.slice(0,7)));ms.add(today().slice(0,7));
+  let arr=[...ms].sort().reverse(),sel=$("#msel"),prev=sel.value;
+  sel.innerHTML=arr.map(m=>`<option value="${m}">${m}</option>`).join("");
+  sel.value=arr.includes(prev)?prev:arr[0];
+  let ym=sel.value,tot=0,dn=0,days={},chD=0;
+  Object.keys(S.tk).forEach(k=>{if(k.slice(0,7)!==ym)return;let a=S.tk[k],d=a.filter(t=>t.done).length;tot+=a.length;dn+=d;days[k]={d,t:a.length,p:a.length?d/a.length*100:0}});
+  Object.values(S.ch).forEach(v=>{if(v&&v.doneAt&&v.doneAt.slice(0,7)===ym)chD++});
+  // Note: we store completedAt only when mastered via tasks—handle in chapter click
+  
+  let p=tot?dn/tot*100:0;
+  $("#mstats").innerHTML=`
+    <div class="stat"><span>Completed</span><b>${dn}/${tot}</b></div>
+    <div class="stat"><span>Rate</span><b>${p.toFixed(1)}%</b></div>
+    <div class="stat"><span>Active Days</span><b>${Object.keys(days).length}</b></div>`;
+  
+  // chart
+  let [y,m]=ym.split("-").map(Number),dim=new Date(y,m,0).getDate();
+  let lb=[],dt=[],cl=[];
+  for(let d=1;d<=dim;d++){let k=ym+"-"+String(d).padStart(2,"0"),r=days[k];lb.push(d);dt.push(r?r.p:0);cl.push(r?(r.p===100?"#2ecc71":"#4d9fff"):"#28334e")}
+  mkBar("c3",lb,dt,cl);
+  
+  // table
+  let rows=[...ms].sort().reverse().map(k=>{
+    let t=0,dn=0,dd={};Object.keys(S.tk).forEach(x=>{if(x.slice(0,7)!==k)return;let a=S.tk[x];t+=a.length;dn+=a.filter(y=>y.done).length;dd[x]=1});
+    let pc=t?dn/t*100:0;
+    return `<tr><td><b>${k}</b></td><td>${dn}/${t}</td><td>${pc.toFixed(0)}%</td><td>${Object.keys(dd).length}</td></tr>`;
+  }).join("");
+  $("#mtbl").innerHTML=`<thead><tr><th>Month</th><th>Tasks</th><th>Rate</th><th>Days</th></tr></thead><tbody>${rows}</tbody>`;
+}
+
+/* ========== CHARTS ========== */
+let charts={};
+function mkChart(id,type,lb,dt,col,fill){
+  if(charts[id])charts[id].destroy();
+  charts[id]=new Chart($("#"+id),{type,data:{labels:lb,datasets:[{data:dt,borderColor:col,backgroundColor:fill?col+"33":col,borderWidth:2,tension:.3,fill:fill,pointRadius:3,pointBackgroundColor:col}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,grid:{color:"#28334e"},ticks:{color:"#8b97b2",callback:v=>v+"%"}},x:{grid:{display:false},ticks:{color:"#8b97b2"}}}}});
+}
+function mkBar(id,lb,dt,cl){
+  if(charts[id])charts[id].destroy();
+  charts[id]=new Chart($("#"+id),{type:"bar",data:{labels:lb,datasets:[{data:dt,backgroundColor:cl,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,grid:{color:"#28334e"},ticks:{color:"#8b97b2",callback:v=>v+"%"}},x:{grid:{display:false},ticks:{color:"#8b97b2"}}}}});
+}
+
+/* ========== NAV ========== */
+function show(t){
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("on"));
+  document.querySelectorAll("nav button[data-t]").forEach(b=>b.classList.remove("on"));
+  $("#"+t).classList.add("on");
+  document.querySelector(`nav button[data-t="${t}"]`).classList.add("on");
+  if(t==="dash")dash();if(t==="ch")chapters();if(t==="tk")tasks();if(t==="mo")monthly();
+}
+document.querySelectorAll("nav button[data-t]").forEach(b=>b.onclick=()=>show(b.dataset.t));
+
+/* ========== EVENTS ========== */
+// chapter click
+$("#chlist").onclick=e=>{
+  let r=e.target.closest(".ch");if(!r)return;
+  let id=r.dataset.id,cur=getCh(id),next=(cur+1)%4;
+  S.ch[id]={s:next,doneAt:next===3?today():null};save();
+  r.dataset.s=next;r.querySelector("small").textContent=ST[next];
+};
+$("#fsub").onchange=chapters;$("#fq").oninput=chapters;
+
+// tasks
+$("#td").value=today();
+$("#add").onclick=()=>{
+  let x=$("#ti").value.trim();if(!x)return;
+  let k=$("#td").value||today();(S.tk[k]=S.tk[k]||[]).push({id:Date.now()+"",x,s:$("#ts").value,done:false});
+  save();$("#ti").value="";tasks();
+};
+$("#ti").onkeydown=e=>{if(e.key==="Enter")$("#add").click()};
+$("#td").onchange=tasks;
+$("#tlist").onclick=e=>{
+  let b=e.target.closest("button[data-a]");if(!b)return;
+  let k=$("#td").value||today(),a=S.tk[k]||[],it=a.find(t=>t.id===b.dataset.id);if(!it)return;
+  if(b.dataset.a==="t"){it.done=!it.done;save();tasks()}
+  else{S.tk[k]=a.filter(t=>t.id!==b.dataset.id);if(!S.tk[k].length)delete S.tk[k];save();tasks()}
+};
+$("#msel").onchange=monthly;
+
+// export/import
+$("#exp").onclick=()=>{
+  let b=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
+  let a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="jee-"+today()+".json";a.click();
+};
+$("#imp").onclick=()=>$("#file").click();
+$("#file").onchange=e=>{
+  let f=e.target.files[0];if(!f)return;
+  let r=new FileReader();r.onload=ev=>{
+    try{let d=JSON.parse(ev.target.result);if(!confirm("Replace current data?"))return;S=d;save();show("dash")}catch{alert("Bad file")}
+  };r.readAsText(f);
+};
+
+/* ========== INIT ========== */
+Object.keys(SYL).forEach(s=>$("#fsub").insertAdjacentHTML("beforeend",`<option>${s}</option>`));
+dash();
+</script>
+</body>
+</html>
