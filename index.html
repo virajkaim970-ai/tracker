@@ -6,8 +6,8 @@
 <title>📚 Study Tracker</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
-:root{--bg:#faf5ea;--p:#fffdf8;--p2:#f5eddc;--ink:#3a2e1f;--ink2:#6b5842;--mut:#9b8a70;--ln:#e5d9c0;--ln2:#d4c4a3;--acc:#8b5a2b;--gold:#b8860b;--grn:#5a7d3f;--red:#b04a4a;--blu:#4a6b8a;--pur:#7a5aaa;--pnk:#a05a7a}
-body.dark{--bg:#0f1216;--p:#181c24;--p2:#1e242e;--ink:#e8e0d0;--ink2:#b8a890;--mut:#7a7565;--ln:#2a3140;--ln2:#3a4252;--acc:#d4a05a;--gold:#e0b060;--grn:#8fc47a;--red:#e08080;--blu:#8ab0d0;--pur:#a78bfa;--pnk:#e08aaa}
+:root{--bg:#faf5ea;--p:#fffdf8;--p2:#f5eddc;--ink:#3a2e1f;--ink2:#6b5842;--mut:#9b8a70;--ln:#e5d9c0;--ln2:#d4c4a3;--acc:#8b5a2b;--gold:#b8860b;--grn:#5a7d3f;--red:#b04a4a;--blu:#4a6b8a;--pur:#7a5aaa;--pnk:#a05a7a;--teal:#3a7a7a}
+body.dark{--bg:#0f1216;--p:#181c24;--p2:#1e242e;--ink:#e8e0d0;--ink2:#b8a890;--mut:#7a7565;--ln:#2a3140;--ln2:#3a4252;--acc:#d4a05a;--gold:#e0b060;--grn:#8fc47a;--red:#e08080;--blu:#8ab0d0;--pur:#a78bfa;--pnk:#e08aaa;--teal:#7ac8c8}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--ink);font-family:-apple-system,system-ui,sans-serif;font-size:14px;line-height:1.5;padding:16px 12px 60px;max-width:1080px;margin:auto;transition:.2s}
 header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
@@ -15,8 +15,9 @@ header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:s
 .logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--gold));display:grid;place-items:center;font-size:19px}
 .brand h1{font-family:Georgia,serif;font-size:17px}
 .brand p{font-size:11px;color:var(--mut)}
-nav{display:flex;gap:3px;padding:3px;background:var(--p);border:1px solid var(--ln);border-radius:10px}
-nav button{background:none;border:0;color:var(--ink2);font:inherit;font-size:12.5px;padding:7px 13px;border-radius:7px;cursor:pointer;font-weight:500}
+nav{display:flex;gap:3px;padding:3px;background:var(--p);border:1px solid var(--ln);border-radius:10px;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{background:none;border:0;color:var(--ink2);font:inherit;font-size:12.5px;padding:7px 13px;border-radius:7px;cursor:pointer;font-weight:500;white-space:nowrap}
 nav button.on{background:var(--acc);color:#fff;font-weight:600}
 .acts{display:flex;gap:5px}
 .btn{font:inherit;font-size:12.5px;padding:8px 11px;border-radius:8px;cursor:pointer;border:1px solid var(--ln2);background:var(--p);color:var(--ink)}
@@ -33,7 +34,7 @@ nav button.on{background:var(--acc);color:#fff;font-weight:600}
 .stat .vl small{font-size:11px;color:var(--mut);font-weight:500}
 .bar{height:5px;background:var(--ln);border-radius:99px;overflow:hidden;margin-top:7px}
 .bar i{display:block;height:100%;background:var(--acc);border-radius:99px;transition:width .4s}
-.chartbox{position:relative;height:230px}
+.chartbox{position:relative;height:300px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px}
 @media(max-width:800px){.grid2{grid-template-columns:1fr}}
 .subj-bar{margin-bottom:14px}
@@ -41,8 +42,8 @@ nav button.on{background:var(--acc);color:#fff;font-weight:600}
 .subj-bar .row1 b{font-family:Georgia,serif;font-size:13.5px}
 .subj-bar .row1 span{color:var(--mut);font-size:11.5px}
 .subj-bar .bar{height:8px;margin-top:0}
-.ch{display:flex;align-items:center;gap:8px;padding:9px 11px;margin-bottom:4px;background:var(--p2);border:1px solid var(--ln);border-radius:9px;flex-wrap:wrap;font-size:13px}
-.ch .nm{flex:1;min-width:120px;font-weight:500}
+.ch{display:flex;align-items:center;gap:8px;padding:8px 11px;margin-bottom:4px;background:var(--p2);border:1px solid var(--ln);border-radius:9px;flex-wrap:wrap;font-size:13px}
+.ch .nm{flex:1;min-width:130px;font-weight:500}
 .metrics{display:flex;gap:3px;flex-wrap:wrap}
 .met{font-size:10px;padding:4px 8px;border-radius:5px;cursor:pointer;font-weight:700;background:var(--p);border:1px solid var(--ln);color:var(--mut);letter-spacing:.3px}
 .met:hover{border-color:var(--acc)}
@@ -65,7 +66,6 @@ input:focus,textarea:focus{border-color:var(--acc)}
 .task.done .chk{background:var(--grn);border-color:var(--grn);color:#fff}
 .task .tx{flex:1}
 .task.done .tx{color:var(--mut);text-decoration:line-through}
-.chip{font-size:9.5px;padding:2px 8px;border-radius:99px;font-weight:700;background:var(--p);color:var(--ink2)}
 .del{background:none;border:0;color:var(--mut);font-size:17px;cursor:pointer;padding:0 3px}
 .del:hover{color:var(--red)}
 .empty{color:var(--mut);font-size:13px;text-align:center;padding:26px 10px}
@@ -95,24 +95,24 @@ input:focus,textarea:focus{border-color:var(--acc)}
   </div>
 </header>
 
-<!-- DASHBOARD -->
 <section id="dash" class="panel on">
   <div class="stats" id="stats" style="margin-bottom:11px"></div>
   <div class="grid2">
     <div class="card"><h3>Task Completion — Last 30 Days</h3><div class="chartbox"><canvas id="c1"></canvas></div></div>
-    <div class="card"><h3>Per-Subject Area Strength</h3><div class="chartbox"><canvas id="c2"></canvas></div></div>
+    <div class="card"><h3>Subject Strength Radar</h3><div class="chartbox"><canvas id="c2"></canvas></div></div>
   </div>
   <div class="card"><h3>Subject Progress</h3><div id="subjBars"></div></div>
 </section>
 
-<!-- CHAPTERS -->
 <section id="ch" class="panel">
   <div class="card">
     <div class="row" style="margin-bottom:11px">
       <span style="font-size:12.5px;color:var(--mut);font-weight:600">Filter:</span>
       <button class="pill on" data-fsub="all">All</button>
       <button class="pill" data-fsub="Physics">Physics</button>
-      <button class="pill" data-fsub="Chemistry">Chemistry</button>
+      <button class="pill" data-fsub="Physical Chemistry">Physical Chem</button>
+      <button class="pill" data-fsub="Organic Chemistry">Organic Chem</button>
+      <button class="pill" data-fsub="Inorganic Chemistry">Inorganic Chem</button>
       <button class="pill" data-fsub="Mathematics">Mathematics</button>
     </div>
     <div id="chlist"></div>
@@ -123,7 +123,6 @@ input:focus,textarea:focus{border-color:var(--acc)}
   </div>
 </section>
 
-<!-- TASKS -->
 <section id="tk" class="panel">
   <div class="card">
     <div class="row" style="margin-bottom:11px">
@@ -145,21 +144,46 @@ input:focus,textarea:focus{border-color:var(--acc)}
 <div id="toast"></div>
 
 <script>
-/* ═══ DATA ═══ */
+/* ═══ FULL JEE SYLLABUS ═══ */
 const SYL = {
-  Physics: ["Units & Measurements","Kinematics","Laws of Motion","Work Energy & Power","Rotational Motion",
-    "Gravitation","Mechanical Properties","Thermal Properties","Thermodynamics","Kinetic Theory",
-    "Oscillations","Waves","Electrostatics","Current Electricity","Magnetism","EM Induction",
-    "AC","EM Waves","Ray Optics","Wave Optics","Modern Physics","Semiconductors"],
-  Chemistry: ["Basic Concepts","Atomic Structure","Periodicity","Chemical Bonding","States of Matter",
-    "Thermodynamics","Equilibrium","Redox","Solutions","Electrochemistry","Kinetics","Surface Chemistry",
-    "p-Block","d-f Block","Coordination","GOC","Hydrocarbons","Haloalkanes","Alcohols Phenols",
-    "Aldehydes Ketones","Amines","Biomolecules"],
-  Mathematics: ["Sets","Relations & Functions","Trigonometry","Complex Numbers","Quadratics",
-    "Permutations","Binomial","Sequences","Straight Lines","Circles","Conic Sections","3D Geometry",
-    "Limits","Derivatives","App of Derivatives","Integrals","Diff Equations","Vectors","Matrices",
-    "Determinants","Probability","Statistics"]
+  Physics: [
+    "Units & Measurements","Kinematics 1D","Kinematics 2D & Projectile","Laws of Motion","Friction",
+    "Circular Motion","Work Energy & Power","Center of Mass & Collisions","Rotational Motion","Gravitation",
+    "Mechanical Properties of Solids","Mechanical Properties of Fluids","Thermal Properties of Matter",
+    "Thermodynamics","Kinetic Theory of Gases","Simple Harmonic Motion","Waves & Sound","Electrostatics",
+    "Capacitance","Current Electricity","Moving Charges & Magnetism","Magnetism & Matter",
+    "Electromagnetic Induction","Alternating Current","Electromagnetic Waves","Ray Optics","Wave Optics",
+    "Dual Nature of Radiation","Atoms","Nuclei","Semiconductors","Experimental Physics"
+  ],
+  "Physical Chemistry": [
+    "Some Basic Concepts","Structure of Atom","Classification & Periodicity","Chemical Bonding",
+    "States of Matter","Thermodynamics","Thermochemistry","Chemical Equilibrium","Ionic Equilibrium",
+    "Redox Reactions","Solutions","Electrochemistry","Chemical Kinetics","Surface Chemistry",
+    "Solid State","Nuclear Chemistry"
+  ],
+  "Organic Chemistry": [
+    "Basics of Organic Chemistry (GOC)","Isomerism","Stereochemistry","Reaction Mechanism",
+    "Hydrocarbons","Haloalkanes & Haloarenes","Alcohols, Phenols & Ethers","Aldehydes & Ketones",
+    "Carboxylic Acids","Amines","Biomolecules","Polymers","Chemistry in Everyday Life",
+    "Named Reactions","Practical Organic Chemistry"
+  ],
+  "Inorganic Chemistry": [
+    "Periodic Table & Periodicity","Chemical Bonding & Structure","Hydrogen & s-Block",
+    "p-Block (13 & 14)","p-Block (15, 16, 17, 18)","d-Block & Transition Elements",
+    "f-Block Elements","Coordination Compounds","Metallurgy","Qualitative Analysis",
+    "Environmental Chemistry","Practical Inorganic Chemistry"
+  ],
+  Mathematics: [
+    "Sets & Relations","Functions","Trigonometric Ratios & Identities","Trigonometric Equations",
+    "Inverse Trigonometric Functions","Complex Numbers","Quadratic Equations","Sequences & Series",
+    "Permutations & Combinations","Binomial Theorem","Matrices","Determinants","Straight Lines",
+    "Circles","Parabola","Ellipse","Hyperbola","Limits & Continuity","Differentiation",
+    "Application of Derivatives","Indefinite Integration","Definite Integration","Area Under Curves",
+    "Differential Equations","Vectors","3D Geometry","Probability","Statistics",
+    "Mathematical Reasoning","Linear Programming"
+  ]
 };
+
 const METRICS = [
   {k:'c', lbl:'Done', full:'Chapter Completed', color:'#5a7d3f'},
   {k:'r1', lbl:'R1', full:'Revised Once', color:'#4a6b8a'},
@@ -167,9 +191,16 @@ const METRICS = [
   {k:'q', lbl:'Q', full:'Questions Practiced', color:'#b8860b'},
   {k:'n', lbl:'N', full:'Short Notes Made', color:'#a05a7a'}
 ];
+
 const SUBS = Object.keys(SYL);
-const SCLR = {Physics:"#4a6b8a", Chemistry:"#5a7d3f", Mathematics:"#b8860b"};
-const KEY = "study-simple-v1";
+const SCLR = {
+  Physics: "#4a6b8a",
+  "Physical Chemistry": "#5a7d3f",
+  "Organic Chemistry": "#7a5aaa",
+  "Inorganic Chemistry": "#a05a7a",
+  Mathematics: "#b8860b"
+};
+const KEY = "study-tracker-v5";
 
 /* ═══ STATE ═══ */
 let S = {};
@@ -251,6 +282,7 @@ if (HAS_CHART) {
 const gridC = { color: "#e5d9c0", drawBorder: false };
 const tickC = { color: "#9b8a70" };
 
+/* ---- Task line chart (unchanged) ---- */
 function drawTaskChart() {
   if (!HAS_CHART) return;
   if (charts.c1) charts.c1.destroy();
@@ -284,31 +316,62 @@ function drawTaskChart() {
   });
 }
 
+/* ---- ⭐ NEW: SUBJECT STRENGTH RADAR CHART ---- */
 function drawSubjectChart() {
   if (!HAS_CHART) return;
   if (charts.c2) charts.c2.destroy();
-  const datasets = METRICS.map(m => ({
-    label: m.full,
-    data: SUBS.map(s => subjectStats(s).pct[m.k]),
-    backgroundColor: m.color,
-    borderRadius: 4,
-    maxBarThickness: 22
-  }));
+  const labels = METRICS.map(m => m.full);
+  const datasets = SUBS.map(sub => {
+    const st = subjectStats(sub);
+    return {
+      label: sub,
+      data: METRICS.map(m => st.pct[m.k]),
+      backgroundColor: SCLR[sub] + "22",
+      borderColor: SCLR[sub],
+      borderWidth: 2,
+      pointBackgroundColor: SCLR[sub],
+      pointBorderColor: "#fffdf8",
+      pointBorderWidth: 2,
+      pointRadius: 4,
+      pointHoverRadius: 6
+    };
+  });
   charts.c2 = new Chart($("#c2"), {
-    type: "bar",
-    data: { labels: SUBS, datasets },
+    type: "radar",
+    data: { labels, datasets },
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: {
-        legend: { position: "bottom", labels: { padding: 10, usePointStyle: true,
-          pointStyle: "circle", boxWidth: 8, font: { size: 10 } } },
-        tooltip: { backgroundColor: "#3a2e1f", padding: 10,
-          callbacks: { label: c => " " + c.dataset.label + ": " + c.parsed.y.toFixed(0) + "%" } }
+        legend: {
+          position: "bottom",
+          labels: { padding: 12, usePointStyle: true, pointStyle: "circle",
+            boxWidth: 8, font: { size: 11 } }
+        },
+        tooltip: {
+          backgroundColor: "#3a2e1f", padding: 11,
+          callbacks: {
+            label: c => " " + c.dataset.label + ": " + c.parsed.r.toFixed(0) + "%"
+          }
+        }
       },
       scales: {
-        y: { beginAtZero: true, max: 100, grid: gridC,
-          ticks: { ...tickC, callback: v => v + "%" } },
-        x: { grid: { display: false }, ticks: tickC }
+        r: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            stepSize: 25,
+            color: "#9b8a70",
+            backdropColor: "transparent",
+            font: { size: 9 },
+            callback: v => v + "%"
+          },
+          grid: { color: "#e5d9c0" },
+          angleLines: { color: "#e5d9c0" },
+          pointLabels: {
+            color: "#6b5842",
+            font: { size: 10, weight: "600" }
+          }
+        }
       }
     }
   });
@@ -340,7 +403,6 @@ function renderDash() {
 
   $("#tag").textContent = `${doneChapters} chapters done · ${streak}-day streak`;
 
-  // Subject progress bars
   $("#subjBars").innerHTML = SUBS.map(sub => {
     const s = subjectStats(sub);
     const col = SCLR[sub];
@@ -360,7 +422,6 @@ function renderDash() {
 /* ═══ CHAPTERS ═══ */
 let chFilter = "all";
 function renderChapters() {
-  const wrap = $("#chlist");
   let html = "";
   SUBS.forEach(sub => {
     if (chFilter !== "all" && chFilter !== sub) return;
@@ -380,7 +441,7 @@ function renderChapters() {
       </div>`;
     });
   });
-  wrap.innerHTML = html;
+  $("#chlist").innerHTML = html;
 }
 
 document.addEventListener("click", e => {
@@ -413,6 +474,10 @@ function dateRange(range) {
   return { from: fmt(from), to: fmt(to) };
 }
 
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+}
+
 function renderTasks() {
   const { from, to } = dateRange(taskRange);
   const dates = Object.keys(S.tk).filter(k => k >= from && k <= to && S.tk[k].length).sort();
@@ -438,10 +503,6 @@ function renderTasks() {
     });
   });
   list.innerHTML = html;
-}
-
-function esc(s) {
-  return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 }
 
 document.addEventListener("click", e => {
@@ -515,6 +576,12 @@ $("#themeBtn").onclick = () => {
       try {
         if (c.options.plugins.legend.labels) {
           c.options.plugins.legend.labels.color = dark ? "#b8a890" : "#6b5842";
+        }
+        if (c.options.scales && c.options.scales.r) {
+          c.options.scales.r.grid.color = dark ? "#2a3140" : "#e5d9c0";
+          c.options.scales.r.angleLines.color = dark ? "#2a3140" : "#e5d9c0";
+          c.options.scales.r.pointLabels.color = dark ? "#b8a890" : "#6b5842";
+          c.options.scales.r.ticks.color = dark ? "#7a7565" : "#9b8a70";
         }
         c.update();
       } catch(e) {}
