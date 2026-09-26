@@ -34,11 +34,18 @@ nav button.on{background:var(--acc);color:#fff;font-weight:600}
 .stat .vl small{font-size:11px;color:var(--mut);font-weight:500}
 .bar{height:5px;background:var(--ln);border-radius:99px;overflow:hidden;margin-top:7px}
 .bar i{display:block;height:100%;background:var(--acc);border-radius:99px;transition:width .4s}
-.chartbox{position:relative;height:300px}
-.chart-fallback{text-align:center;color:var(--mut);padding:100px 10px;font-size:13px;line-height:1.7}
+.chartbox{position:relative;height:240px}
+.chart-fallback{text-align:center;color:var(--mut);padding:80px 10px;font-size:13px;line-height:1.7}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px}
 @media(max-width:800px){.grid2{grid-template-columns:1fr}}
-@media(max-width:500px){.chartbox{height:360px}}
+
+/* Subject radar grid */
+.radar-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:11px}
+.radar-card{background:var(--p2);border:1px solid var(--ln);border-radius:10px;padding:12px 10px 8px}
+.radar-card .title{display:flex;justify-content:space-between;align-items:center;padding:0 4px 6px;font-family:Georgia,serif;font-weight:700;font-size:13.5px}
+.radar-card .title span:last-child{font-family:-apple-system,system-ui,sans-serif;font-weight:500;font-size:11px;color:var(--mut)}
+.radar-card .rbox{position:relative;height:230px}
+
 .subj-bar{margin-bottom:14px}
 .subj-bar .row1{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px}
 .subj-bar .row1 b{font-family:Georgia,serif;font-size:13.5px}
@@ -99,11 +106,13 @@ input:focus,textarea:focus{border-color:var(--acc)}
 
 <section id="dash" class="panel on">
   <div class="stats" id="stats" style="margin-bottom:11px"></div>
-  <div class="grid2">
-    <div class="card"><h3>Task Completion — Last 30 Days</h3>
-      <div class="chartbox"><canvas id="c1"></canvas></div></div>
-    <div class="card"><h3>Subject Strength Radar</h3>
-      <div class="chartbox"><canvas id="c2"></canvas></div></div>
+  <div class="card">
+    <h3>Task Completion — Last 30 Days</h3>
+    <div class="chartbox"><canvas id="c1"></canvas></div>
+  </div>
+  <div class="card">
+    <h3>Subject Strength — 5 Areas Per Subject</h3>
+    <div class="radar-grid" id="radarGrid"></div>
   </div>
   <div class="card"><h3>Subject Progress</h3><div id="subjBars"></div></div>
 </section>
@@ -148,7 +157,7 @@ input:focus,textarea:focus{border-color:var(--acc)}
 <div id="toast"></div>
 
 <script>
-/* ═══ FULL JEE SYLLABUS (correctly categorized) ═══ */
+/* ═══ FULL JEE SYLLABUS ═══ */
 const SYL = {
   Physics: [
     "Units & Measurements","Kinematics 1D","Kinematics 2D & Projectile","Laws of Motion","Friction",
@@ -201,7 +210,7 @@ const SCLR = {
   Physics: "#4a6b8a",
   "Physical Chemistry": "#5a7d3f",
   "Organic Chemistry": "#7a5aaa",
-  "Inorganic Chemistry": "#3a7a7a",   /* ✅ FIX #9 — teal, distinct from purple */
+  "Inorganic Chemistry": "#3a7a7a",
   Mathematics: "#b8860b"
 };
 const KEY = "study-tracker-v5";
@@ -212,7 +221,6 @@ try { S = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e) { S = {}; }
 S.ch = S.ch || {};
 S.tk = S.tk || {};
 
-/* ✅ FIX #2 — save with error handling */
 const save = () => {
   try { localStorage.setItem(KEY, JSON.stringify(S)); }
   catch(e) { toast("⚠ Storage full — export a backup!"); }
@@ -232,17 +240,16 @@ function toast(msg) {
   t._ = setTimeout(() => t.classList.remove("on"), 2000);
 }
 
-function chState(sub, name) {
-  const k = sub + '|' + name;
-  if (!S.ch[k]) S.ch[k] = { c:false, r1:false, r2:false, q:false, n:false };
-  return S.ch[k];
-}
-
-/* ✅ FIX #12 — safe HTML escape helper */
 function esc(s) {
   return String(s).replace(/[&<>"']/g, c => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
   }[c]));
+}
+
+function chState(sub, name) {
+  const k = sub + '|' + name;
+  if (!S.ch[k]) S.ch[k] = { c:false, r1:false, r2:false, q:false, n:false };
+  return S.ch[k];
 }
 
 /* ═══ STATS ═══ */
@@ -298,6 +305,7 @@ if (HAS_CHART) {
 const gridC = { color: "#e5d9c0", drawBorder: false };
 const tickC = { color: "#9b8a70" };
 
+/* Task line chart */
 function drawTaskChart() {
   if (!HAS_CHART) return;
   if (charts.c1) charts.c1.destroy();
@@ -331,60 +339,103 @@ function drawTaskChart() {
   });
 }
 
-function drawSubjectChart() {
-  if (!HAS_CHART) return;
-  const box = $("#c2") && $("#c2").parentElement;
+/* ⭐ NEW — One radar per subject */
+function drawSubjectRadars() {
+  const grid = $("#radarGrid");
 
-  /* ✅ FIX #13 — placeholder when everything is zero */
-  if (SUBS.every(s => subjectStats(s).overall === 0)) {
-    if (charts.c2) { charts.c2.destroy(); charts.c2 = null; }
-    if (box) box.innerHTML = '<div class="chart-fallback">📊 Tick some chapters to see the radar<br><small>Each subject becomes a polygon — bigger = better</small></div>';
-    return;
-  }
-  if (box && !box.querySelector("canvas")) {
-    box.innerHTML = '<canvas id="c2"></canvas>';
-  }
-  if (charts.c2) charts.c2.destroy();
+  /* Build/refresh the grid skeleton */
+  const isDark = document.body.classList.contains("dark");
+  const gridColor = isDark ? "#2a3140" : "#e5d9c0";
+  const tickColor = isDark ? "#7a7565" : "#9b8a70";
+  const lblColor = isDark ? "#b8a890" : "#6b5842";
 
-  const labels = METRICS.map(m => m.full);
-  const datasets = SUBS.map(sub => {
+  if (!grid.querySelector(".radar-card")) {
+    grid.innerHTML = SUBS.map(sub => {
+      const s = subjectStats(sub);
+      const donePct = s.total ? (s.cnt.c / s.total * 100).toFixed(0) : 0;
+      return `<div class="radar-card" data-sub="${esc(sub)}">
+        <div class="title" style="color:${SCLR[sub]}">
+          <span>● ${esc(sub)}</span>
+          <span>${donePct}% done</span>
+        </div>
+        <div class="rbox"><canvas id="rad-${SUBS.indexOf(sub)}"></canvas></div>
+      </div>`;
+    }).join("");
+  }
+
+  /* Draw or refresh each radar */
+  SUBS.forEach((sub, idx) => {
+    const cv = document.getElementById("rad-" + idx);
+    if (!cv) return;
     const st = subjectStats(sub);
-    return {
-      label: sub,
-      data: METRICS.map(m => st.pct[m.k]),
-      backgroundColor: SCLR[sub] + "22",
-      borderColor: SCLR[sub],
-      borderWidth: 2,
-      pointBackgroundColor: SCLR[sub],
-      pointBorderColor: "#fffdf8",
-      pointBorderWidth: 2,
-      pointRadius: 4,
-      pointHoverRadius: 6
-    };
-  });
-  charts.c2 = new Chart($("#c2"), {
-    type: "radar",
-    data: { labels, datasets },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { position: "bottom",
-          labels: { padding: 12, usePointStyle: true, pointStyle: "circle",
-            boxWidth: 8, font: { size: 11 } } },
-        tooltip: { backgroundColor: "#3a2e1f", padding: 11,
-          callbacks: { label: c => " " + c.dataset.label + ": " + c.parsed.r.toFixed(0) + "%" } }
+    const allZero = METRICS.every(m => st.pct[m.k] === 0);
+
+    if (charts["rad" + idx]) { charts["rad" + idx].destroy(); charts["rad" + idx] = null; }
+
+    if (allZero && !HAS_CHART) {
+      cv.parentElement.innerHTML = '<div class="chart-fallback" style="padding:60px 10px;font-size:12px">No data yet</div>';
+      return;
+    }
+
+    if (!HAS_CHART) {
+      cv.parentElement.innerHTML = '<div class="chart-fallback" style="padding:60px 10px;font-size:12px">📉 Chart.js unavailable</div>';
+      return;
+    }
+
+    charts["rad" + idx] = new Chart(cv, {
+      type: "radar",
+      data: {
+        labels: METRICS.map(m => m.lbl),
+        datasets: [{
+          label: sub,
+          data: METRICS.map(m => st.pct[m.k]),
+          backgroundColor: SCLR[sub] + "44",
+          borderColor: SCLR[sub],
+          borderWidth: 2,
+          pointBackgroundColor: METRICS.map(m => m.color),
+          pointBorderColor: "#fffdf8",
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6
+        }]
       },
-      scales: {
-        r: {
-          beginAtZero: true, max: 100,
-          ticks: { stepSize: 25, color: "#9b8a70", backdropColor: "transparent",
-            font: { size: 9 }, callback: v => v + "%" },
-          grid: { color: "#e5d9c0" },
-          angleLines: { color: "#e5d9c0" },
-          pointLabels: { color: "#6b5842", font: { size: 10, weight: "600" } }
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "#3a2e1f", padding: 10,
+            callbacks: {
+              title: items => METRICS[items[0].dataIndex].full,
+              label: c => " " + c.parsed.r.toFixed(0) + "% (" + st.cnt[METRICS[c.dataIndex].k] + "/" + st.total + ")"
+            }
+          }
+        },
+        scales: {
+          r: {
+            beginAtZero: true, max: 100,
+            ticks: {
+              stepSize: 25, color: tickColor,
+              backdropColor: "transparent",
+              font: { size: 8 },
+              showLabelBackdrop: false,
+              callback: v => v + "%"
+            },
+            grid: { color: gridColor },
+            angleLines: { color: gridColor },
+            pointLabels: { color: lblColor, font: { size: 10, weight: "600" } }
+          }
         }
       }
-    }
+    });
+  });
+
+  /* Update the % done badge live */
+  grid.querySelectorAll(".radar-card").forEach(card => {
+    const sub = card.dataset.sub;
+    const s = subjectStats(sub);
+    const donePct = s.total ? (s.cnt.c / s.total * 100).toFixed(0) : 0;
+    card.querySelector(".title span:last-child").textContent = donePct + "% done";
   });
 }
 
@@ -427,7 +478,7 @@ function renderDash() {
   }).join("");
 
   drawTaskChart();
-  drawSubjectChart();
+  drawSubjectRadars();
 }
 
 /* ═══ CHAPTERS ═══ */
@@ -455,7 +506,6 @@ function renderChapters() {
   $("#chlist").innerHTML = html;
 }
 
-/* ✅ FIX #1 — header updates live when a metric is toggled */
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest(".met");
   if (!b) return;
@@ -467,7 +517,7 @@ document.addEventListener("click", e => {
   save();
   b.classList.toggle("on", st[k]);
 
-  // Live update the subject header
+  /* Live update the subject header */
   const s = subjectStats(sub);
   const hdr = document.querySelector(`.subj-hdr[data-sub="${CSS.escape(sub)}"]`);
   if (hdr) {
@@ -531,7 +581,6 @@ document.addEventListener("click", e => {
     if (t) { t.done = !t.done; save(); renderTasks(); }
     return;
   }
-  /* ✅ FIX #11 — confirm before delete */
   const d = e.target.closest && e.target.closest(".del");
   if (d && d.dataset.d) {
     if (!confirm("Delete this task?")) return;
@@ -592,7 +641,6 @@ $("#themeBtn").onclick = () => {
   localStorage.setItem("theme", dark ? "dark" : "light");
   applyTheme();
   if (HAS_CHART) {
-    /* ✅ FIX #7 — update global defaults too */
     Chart.defaults.color = dark ? "#7a7565" : "#9b8a70";
     Object.values(charts).forEach(c => {
       if (!c) return;
@@ -619,7 +667,7 @@ $("#themeBtn").onclick = () => {
           }
         }
         c.update();
-      } catch(e) { /* ignore */ }
+      } catch(e) {}
     });
   }
 };
@@ -652,7 +700,7 @@ $("#file").onchange = e => {
   e.target.value = "";
 };
 
-/* ✅ FIX #3 — clean up orphaned data from old subject names */
+/* Clean orphaned data */
 function cleanupOrphans() {
   const validSubs = new Set(SUBS);
   let changed = false;
@@ -669,17 +717,16 @@ function cleanupOrphans() {
   if (changed) save();
 }
 
-/* ✅ FIX #4 — keep the "add task" date in sync with today */
+/* Midnight date sync */
 setInterval(() => {
   const td = $("#td");
   if (td && td.value < today()) td.value = today();
 }, 60000);
-/* Also refresh at midnight — check every minute is enough */
 
-/* ✅ FIX #6 — show message if Chart.js failed to load */
+/* Chart.js fallback */
 function showChartFallback() {
   document.querySelectorAll(".chartbox").forEach(c => {
-    c.innerHTML = '<div class="chart-fallback">📉 Charts unavailable<br><small>Chart.js CDN could not load — check your internet connection</small></div>';
+    c.innerHTML = '<div class="chart-fallback">📉 Charts unavailable<br><small>Chart.js CDN could not load</small></div>';
   });
 }
 
