@@ -183,20 +183,21 @@ td{padding:8px;border-bottom:1px solid var(--ln)}
     <div id="tlist"></div>
   </div>
   <div class="card">
-    <h3>📸 Import Schedule</h3>
+    <h3>📥 Import Schedule</h3>
     <div class="row" style="margin-bottom:7px">
       <select id="impBatch">
         <option value="A1.0">📘 Arjuna 1.0</option>
         <option value="A2.0">📗 Arjuna 2.0</option>
         <option value="Other">📙 Other</option>
       </select>
-      <span class="hint" style="flex:1">Pick batch, then paste or upload image</span>
+      <span class="hint" style="flex:1">Pick batch, then paste text or upload a file</span>
     </div>
     <textarea id="impText" rows="4" placeholder="2026-09-26 | Physics | Rotational Motion | 18:00
 2026-09-26 | Chemistry | Electrochemistry | 20:00"></textarea>
     <div class="row" style="margin-top:7px">
       <button class="btn pri" id="impParse">🔍 Parse</button>
-      <button class="btn" id="impImg">📸 Upload Image</button>
+      <button class="btn" id="impImg">📸 Image</button>
+      <button class="btn" id="impPdf">📄 PDF</button>
       <input type="file" id="impImgIn" hidden accept="image/*">
       <button class="btn" id="impDemo">✨ Demo</button>
       <button class="btn" id="impClear" style="margin-left:auto">Clear</button>
@@ -256,7 +257,7 @@ td{padding:8px;border-bottom:1px solid var(--ln)}
 
   <div class="card">
     <h3>📚 Upload Subject Planners</h3>
-    <p class="hint" style="margin:0 0 11px">Upload planner per subject (.txt/.csv/image) — auto-fills Chapter Map</p>
+    <p class="hint" style="margin:0 0 11px">Upload planner per subject (.txt/.csv/.pdf/image) — auto-fills Chapter Map</p>
     <div class="pz-grid" id="pzGrid"></div>
   </div>
 
@@ -310,7 +311,7 @@ td{padding:8px;border-bottom:1px solid var(--ln)}
 /* ═══ ERROR BANNER ═══ */
 window.addEventListener("error",e=>{
   const b=document.getElementById("err");
-  b.textContent="⚠️ Error: "+e.message+" (check console F12)";
+  b.textContent="⚠️ "+e.message+" (F12 for details)";
   b.style.display="block";
 });
 
@@ -327,7 +328,7 @@ const W=[0,.35,.7,1];
 const PS=["Physics","Physical Chemistry","Organic Chemistry","Mathematics","Inorganic Chemistry"];
 const PC={Physics:"#4a6b8a","Physical Chemistry":"#7a8a4a","Organic Chemistry":"#5a7d3f",Mathematics:"#b8860b","Inorganic Chemistry":"#a05a7a"};
 const PB={Physics:"A1.0","Physical Chemistry":"A1.0","Organic Chemistry":"A1.0",Mathematics:"A2.0","Inorganic Chemistry":"A2.0"};
-const KEY="study-tracker-v3";
+const KEY="study-tracker-v4";
 const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 /* ═══ STATE ═══ */
@@ -365,34 +366,25 @@ function applyTheme(){
   const tb=$("#themeBtn");if(tb)tb.textContent=dark?"☀️":"🌙";
 }
 $("#themeBtn").onclick=()=>{
-  try{
-    const dark=!document.body.classList.contains("dark");
-    localStorage.setItem("theme",dark?"dark":"light");
-    applyTheme();
-    Object.values(charts).forEach(c=>{
-      try{
-        if(c&&c.options&&c.options.plugins&&c.options.plugins.legend&&c.options.plugins.legend.labels){
-          c.options.plugins.legend.labels.color=dark?"#b8a890":"#6b5842";
-        }
-        c.update();
-      }catch(e){}
-    });
-  }catch(e){console.error(e)}
+  const dark=!document.body.classList.contains("dark");
+  localStorage.setItem("theme",dark?"dark":"light");
+  applyTheme();
+  Object.values(charts).forEach(c=>{
+    try{
+      if(c&&c.options&&c.options.plugins&&c.options.plugins.legend&&c.options.plugins.legend.labels){
+        c.options.plugins.legend.labels.color=dark?"#b8a890":"#6b5842";
+      }
+      c.update();
+    }catch(e){}
+  });
 };
 
-/* ═══ CHARTS (defensive) ═══ */
+/* ═══ CHARTS ═══ */
 const HAS_CHART=typeof Chart!=="undefined";
 if(HAS_CHART){
-  try{
-    Chart.defaults.color="#9b8a70";
-    Chart.defaults.font.family="Georgia,serif";
-    Chart.defaults.font.size=11;
-  }catch(e){console.warn("Chart config failed",e)}
-}else{
-  console.warn("Chart.js not loaded — charts disabled");
+  try{Chart.defaults.color="#9b8a70";Chart.defaults.font.family="Georgia,serif";Chart.defaults.font.size=11;}catch(e){}
 }
 const gridC={color:"#e5d9c0",drawBorder:false},tickC={color:"#9b8a70"};
-
 function line(id,lb,dt,col){
   if(!HAS_CHART)return;
   try{
@@ -401,7 +393,7 @@ function line(id,lb,dt,col){
     charts[id]=new Chart(cv,{type:"line",data:{labels:lb,datasets:[{data:dt,borderColor:col,backgroundColor:col+"30",borderWidth:2.5,tension:.35,fill:true,pointRadius:3,pointBackgroundColor:col,pointBorderColor:"#fffdf8",pointBorderWidth:2}]},
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:"#3a2e1f",padding:10,callbacks:{label:c=>" "+(c.parsed.y||0).toFixed(0)+"%"}}},
       scales:{y:{beginAtZero:true,max:100,grid:gridC,ticks:{...tickC,callback:v=>v+"%"}},x:{grid:{display:false},ticks:tickC}}}});
-  }catch(e){console.error("Chart line",e)}
+  }catch(e){console.error(e)}
 }
 function doughnut(id,lb,dt){
   if(!HAS_CHART)return;
@@ -410,7 +402,7 @@ function doughnut(id,lb,dt){
     const cv=$("#"+id);if(!cv)return;
     charts[id]=new Chart(cv,{type:"doughnut",data:{labels:lb,datasets:[{data:dt,backgroundColor:lb.map(l=>PC[l]+"dd"),borderColor:"#fffdf8",borderWidth:2}]},
       options:{responsive:true,maintainAspectRatio:false,cutout:"62%",plugins:{legend:{position:"bottom",labels:{padding:10,usePointStyle:true,pointStyle:"circle",boxWidth:8,color:"#6b5842"}},tooltip:{backgroundColor:"#3a2e1f",padding:10,callbacks:{label:c=>" "+c.parsed.toFixed(1)+"%"}}}}});
-  }catch(e){console.error("Chart donut",e)}
+  }catch(e){console.error(e)}
 }
 function bar(id,lb,dt,cl){
   if(!HAS_CHART)return;
@@ -420,7 +412,7 @@ function bar(id,lb,dt,cl){
     charts[id]=new Chart(cv,{type:"bar",data:{labels:lb,datasets:[{data:dt,backgroundColor:cl,borderRadius:4,maxBarThickness:18}]},
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:"#3a2e1f",padding:10,callbacks:{label:c=>" "+c.parsed.y.toFixed(0)+"%"}}},
       scales:{y:{beginAtZero:true,max:100,grid:gridC,ticks:{...tickC,callback:v=>v+"%"}},x:{grid:{display:false},ticks:{...tickC,maxRotation:0,autoSkipPadding:6}}}}});
-  }catch(e){console.error("Chart bar",e)}
+  }catch(e){console.error(e)}
 }
 
 /* ═══ STATS ═══ */
@@ -451,8 +443,7 @@ function monthStat(ym){
 function renderDash(){
   try{
     const s=sylStat(),t=dStat(today()),stk=streak();
-    const stats=$("#stats");
-    if(stats)stats.innerHTML=`
+    $("#stats").innerHTML=`
       <div class="stat"><span class="lb">📚 Syllabus</span><span class="vl">${s.pct.toFixed(1)}<small>%</small></span><div class="bar"><i style="width:${s.pct}%"></i></div></div>
       <div class="stat"><span class="lb">🏆 Mastered</span><span class="vl">${s.mast}<small>/${s.tot}</small></span><div class="bar"><i style="width:${s.tot?s.mast/s.tot*100:0}%;background:var(--grn)"></i></div></div>
       <div class="stat"><span class="lb">✅ Today</span><span class="vl">${t.d}<small>/${t.t}</small></span><div class="bar"><i style="width:${t.p}%"></i></div></div>
@@ -475,9 +466,9 @@ function renderDash(){
       h+='</div>';
     }
     h+='</div></div>';
-    const heat=$("#heat");if(heat)heat.innerHTML=h;
-    const tag=$("#tag");if(tag)tag.textContent=`${s.mast} mastered · ${stk}-day streak`;
-  }catch(e){console.error("renderDash",e)}
+    $("#heat").innerHTML=h;
+    $("#tag").textContent=`${s.mast} mastered · ${stk}-day streak`;
+  }catch(e){console.error(e)}
 }
 
 /* ═══ CHAPTERS ═══ */
@@ -501,15 +492,14 @@ function renderCh(){
       });
     }
     $("#chlist").innerHTML=h||'<div class="empty"><div class="big">🔍</div>No chapters</div>';
-  }catch(e){console.error("renderCh",e)}
+  }catch(e){console.error(e)}
 }
 document.addEventListener("click",e=>{
-  const r=e.target.closest && e.target.closest(".ch");
+  const r=e.target.closest&&e.target.closest(".ch");
   if(!r)return;
   const id=r.dataset.id,cur=getCh(id),nxt=(cur.s+1)%4;
   S.ch[id]={s:nxt,doneAt:nxt===3?(cur.doneAt||today()):null};
-  save();
-  r.dataset.s=nxt;r.querySelector(".tag").textContent=ST[nxt];
+  save();r.dataset.s=nxt;r.querySelector(".tag").textContent=ST[nxt];
   toast(nxt===3?"🎉 Mastered!":ST[nxt]);
 });
 
@@ -540,10 +530,10 @@ function renderTasks(){
         <button class="del" data-a="d" data-id="${t.id}">×</button></div>`;
     });
     $("#tlist").innerHTML=h;
-  }catch(e){console.error("renderTasks",e)}
+  }catch(e){console.error(e)}
 }
 document.addEventListener("click",e=>{
-  const b=e.target.closest && e.target.closest("button[data-a]");
+  const b=e.target.closest&&e.target.closest("button[data-a]");
   if(!b||!b.closest("#tlist"))return;
   const k=$("#td").value||today(),a=S.tk[k]||[],it=a.find(t=>t.id===b.dataset.id);
   if(!it)return;
@@ -552,7 +542,7 @@ document.addEventListener("click",e=>{
   else{S.tk[k]=a.filter(t=>t.id!==b.dataset.id);if(!S.tk[k].length)delete S.tk[k];save();renderTasks()}
 });
 
-/* ═══ IMPORT ═══ */
+/* ═══ IMPORT PARSERS ═══ */
 function pDate(s){
   s=String(s).trim();
   let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);
@@ -595,6 +585,8 @@ function parseSchedule(t){
   });
   return out;
 }
+
+/* ═══ IMPORT UI ═══ */
 let impPending=[];
 $("#impParse").onclick=()=>{
   const batch=$("#impBatch").value;
@@ -624,6 +616,71 @@ $("#impImgIn").onchange=async e=>{
   }catch(err){box.innerHTML='<div class="hint" style="color:var(--red)">OCR failed — try clearer image</div>'}
   e.target.value="";
 };
+
+/* ═══ PDF IMPORT ═══ */
+let pdfReady=false;
+async function loadPdfJs(){
+  if(pdfReady||window.pdfjsLib)return;
+  await new Promise((res,rej)=>{
+    const s=document.createElement("script");
+    s.src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js";
+    s.onload=()=>{
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc=
+        "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+      pdfReady=true;res();
+    };
+    s.onerror=rej;document.head.appendChild(s);
+  });
+}
+$("#impPdf").onclick=()=>{
+  const inp=document.createElement("input");
+  inp.type="file";inp.accept=".pdf,application/pdf";
+  inp.onchange=e=>{const f=e.target.files[0];if(f)handlePdf(f)};
+  inp.click();
+};
+async function handlePdf(file){
+  const box=$("#impPreview");box.style.display="block";
+  box.innerHTML='<div class="hint">📄 Loading PDF engine…</div>';
+  try{
+    await loadPdfJs();
+    const buf=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    let text="";
+    for(let p=1;p<=pdf.numPages;p++){
+      box.innerHTML=`<div class="hint">📖 Reading page ${p}/${pdf.numPages}…</div>`;
+      const page=await pdf.getPage(p);
+      const content=await page.getTextContent();
+      const lines={};
+      content.items.forEach(it=>{
+        const y=Math.round(it.transform[5]);
+        (lines[y]=lines[y]||[]).push(it.str);
+      });
+      Object.keys(lines).sort((a,b)=>b-a).forEach(y=>{
+        text+=lines[y].join(" ").replace(/\s+/g," ").trim()+"\n";
+      });
+      text+="\n";
+    }
+    if(!text.trim()){
+      box.innerHTML='<div class="hint" style="color:var(--red)">PDF has no selectable text — likely scanned. Use 📸 Image instead.</div>';
+      return;
+    }
+    $("#impText").value=text;
+    const batch=$("#impBatch").value;
+    const parsed=parseSchedule(text);
+    if(!parsed.length){
+      box.innerHTML=`<div class="hint">📄 Extracted ${text.length} chars but no schedule lines detected.<br>
+        Check the textarea above — edit if needed, then click <b>🔍 Parse</b>.</div>`;
+      return;
+    }
+    impPending=parsed.map(p=>({date:p.date,x:`${p.subject}: ${p.topic}`,s:p.subject,time:p.time,b:batch,pri:"high",done:false}));
+    renderImpPreview();
+    toast(`📄 PDF: ${parsed.length} lectures found`);
+  }catch(e){
+    console.error(e);
+    box.innerHTML='<div class="hint" style="color:var(--red)">PDF read failed — check the file or try again.</div>';
+  }
+}
+
 function renderImpPreview(){
   const box=$("#impPreview");
   if(!impPending.length){box.style.display="none";return}
@@ -688,8 +745,7 @@ function trackSir(){
         fin.push(map[pos.sirChap].name);pos.sirLec-=map[pos.sirChap].total;pos.sirChap++;
       }
     }
-    pos.anchorAt=now.toISOString();
-    adv+=n;
+    pos.anchorAt=now.toISOString();adv+=n;
   });
   if(adv>0){save();setTimeout(()=>{toast(`📡 Sir +${adv}`);if(fin.length)setTimeout(()=>toast(`✅ ${fin.join(", ")}`),1500)},400)}
   return adv;
@@ -738,7 +794,7 @@ function renderAIInputs(){
     });
     renderLiveTrack();renderSchool();renderCmap();renderLcList();renderPz();
     $("#lockdown").checked=S.ai.lockdown||false;
-  }catch(e){console.error("renderAIInputs",e)}
+  }catch(e){console.error(e)}
 }
 $("#lockdown").onchange=e=>{S.ai.lockdown=e.target.checked;save();toast(e.target.checked?"🔒 Lockdown ON":"OFF")};
 const _d=new Date();_d.setDate(_d.getDate()+30);$("#aiDeadline").value=fmt(_d);
@@ -756,7 +812,7 @@ function renderLiveTrack(){
         <span style="flex:1">📡 <b>${esc(ch.name)}</b> · L${pos.sirLec}/${ch.total}</span>
         <span style="font-size:10.5px;color:var(--mut)">🔄 ${last} · ${wk}/wk</span></div>`;
     }).join("");
-  }catch(e){console.error("renderLiveTrack",e)}
+  }catch(e){console.error(e)}
 }
 $("#syncNow").onclick=()=>{const n=trackSir();if(!n)toast("✓ Up to date");renderLiveTrack();renderAIInputs()};
 $("#reanchor").onclick=()=>{
@@ -777,7 +833,7 @@ function renderSchool(){
     }});
     $("#scLeave").checked=S.ai.school.leaves.includes(today());
     renderSchoolSum();
-  }catch(e){console.error("renderSchool",e)}
+  }catch(e){console.error(e)}
 }
 function renderSchoolSum(){
   const s=S.ai.school;
@@ -857,7 +913,7 @@ function renderCmap(){
       if(!name||!total){toast("Enter name + count");return}
       S.ai.chmap[sub].push({name,total});save();renderCmap();renderAIInputs();
     }});
-  }catch(e){console.error("renderCmap",e)}
+  }catch(e){console.error(e)}
 }
 
 function renderLcList(){
@@ -877,7 +933,7 @@ function renderLcList(){
       const[i,j]=b.dataset.lc.split("-").map(Number);S.ai.live[i].splice(j,1);
       save();renderLcList();toast("Removed");
     }});
-  }catch(e){console.error("renderLcList",e)}
+  }catch(e){console.error(e)}
 }
 $("#lcAdd").onclick=()=>{
   const i=+$("#lcDay").value,s=$("#lcSub").value,t=$("#lcTime").value;
@@ -885,7 +941,7 @@ $("#lcAdd").onclick=()=>{
   save();renderLcList();renderLiveTrack();toast(`📡 ${DAYS[i]} ${t}`);
 };
 
-/* Planner upload */
+/* ═══ PLANNER UPLOAD ═══ */
 const pzPending={};PS.forEach(s=>pzPending[s]=null);
 function parsePlanner(t){
   const out=[];
@@ -909,7 +965,7 @@ function renderPz(){
     $("#pzGrid").innerHTML=PS.map(sub=>{
       const pend=pzPending[sub],b=PB[sub],bcls=b==="A1.0"?"bA1":"bA2";
       const icon=sub==="Physics"?"📘":sub==="Mathematics"?"📐":sub==="Physical Chemistry"?"⚗️":sub==="Organic Chemistry"?"🧬":"🔬";
-      let body=`<label class="pz-drop"><input type="file" data-pz="${sub}" accept=".txt,.csv,image/*">📄 Upload file<br><small>.txt · .csv · image</small></label>`;
+      let body=`<label class="pz-drop"><input type="file" data-pz="${sub}" accept=".txt,.csv,.pdf,image/*">📄 Upload file<br><small>.txt · .csv · .pdf · image</small></label>`;
       if(pend&&pend.length){
         const tot=pend.reduce((a,c)=>a+c.total,0);
         body+=`<div style="margin-top:8px;font-size:11px;font-weight:600">${pend.length} ch · ${tot} lec</div>`
@@ -928,10 +984,10 @@ function renderPz(){
       const sub=b.dataset.pza,list=pzPending[sub]||[];
       if(!list.length)return;
       S.ai.chmap[sub]=list.slice();save();pzPending[sub]=null;
-      toast(`✓ ${list.length} chapters → ${sub}`);renderPz();renderCmap();renderAIInputs();
+      toast(`✓ ${list.length} → ${sub}`);renderPz();renderCmap();renderAIInputs();
     }});
     $$("#pzGrid [data-pzc]").forEach(b=>{b.onclick=()=>{pzPending[b.dataset.pzc]=null;renderPz()}});
-  }catch(e){console.error("renderPz",e)}
+  }catch(e){console.error(e)}
 }
 async function handlePz(sub,file){
   toast(`Reading ${file.name}…`);
@@ -944,6 +1000,22 @@ async function handlePz(sub,file){
       toast("🔍 OCR…");
       const w=await Tesseract.createWorker("eng");
       const{data}=await w.recognize(file);text=data.text;
+    } else if(file.type==="application/pdf"||file.name.toLowerCase().endsWith(".pdf")){
+      await loadPdfJs();
+      const buf=await file.arrayBuffer();
+      const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+      for(let p=1;p<=pdf.numPages;p++){
+        const page=await pdf.getPage(p);
+        const content=await page.getTextContent();
+        const lines={};
+        content.items.forEach(it=>{
+          const y=Math.round(it.transform[5]);
+          (lines[y]=lines[y]||[]).push(it.str);
+        });
+        Object.keys(lines).sort((a,b)=>b-a).forEach(y=>{
+          text+=lines[y].join(" ").replace(/\s+/g," ").trim()+"\n";
+        });
+      }
     } else text=await file.text();
     const parsed=parsePlanner(text);
     if(!parsed.length){toast("❌ No chapters detected");return}
@@ -951,7 +1023,7 @@ async function handlePz(sub,file){
   }catch(e){console.error(e);toast("❌ Read failed")}
 }
 
-/* Plan generate */
+/* ═══ GENERATE PLAN ═══ */
 let aiPlan=[];
 function generateAIPlan(caughtUp){
   try{
@@ -1003,7 +1075,7 @@ function generateAIPlan(caughtUp){
     renderPlan();
     $("#planBox").style.display="block";
     $("#planBox").scrollIntoView({behavior:"smooth",block:"start"});
-  }catch(e){console.error("generateAIPlan",e);toast("⚠ Error generating plan")}
+  }catch(e){console.error(e);toast("⚠ Error generating plan")}
 }
 function renderPlan(){
   try{
@@ -1023,7 +1095,7 @@ function renderPlan(){
     }).join("");
     box.querySelectorAll("input[data-pi]").forEach(inp=>{inp.oninput=()=>{aiPlan[+inp.dataset.pi][inp.dataset.field]=inp.value}});
     box.querySelectorAll("[data-pi-del]").forEach(b=>{b.onclick=()=>{aiPlan.splice(+b.dataset.piDel,1);renderPlan()}});
-  }catch(e){console.error("renderPlan",e)}
+  }catch(e){console.error(e)}
 }
 $("#planAdd").onclick=()=>{
   const x=$("#planNew").value.trim();if(!x)return;
@@ -1058,7 +1130,7 @@ function renderMonthly(){
     bar("c3",lb,dt,cl);
     const rows=arr.map(k=>{const m2=monthStat(k);return `<tr><td><b>${mLabel(k)}</b></td><td>${m2.dn}/${m2.tot}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1;height:4px;margin:0"><i style="width:${m2.p}%"></i></div><span style="font-size:11px;color:var(--mut)">${m2.p.toFixed(0)}%</span></div></td><td>${m2.active}</td><td style="color:var(--grn)">${m2.chD}</td></tr>`}).join("");
     $("#mtbl").innerHTML=`<table><thead><tr><th>Month</th><th>Tasks</th><th>Rate</th><th>Days</th><th>Chapters</th></tr></thead><tbody>${rows}</tbody></table>`;
-  }catch(e){console.error("renderMonthly",e)}
+  }catch(e){console.error(e)}
 }
 $("#msel").onchange=renderMonthly;
 
@@ -1075,7 +1147,7 @@ function show(t){
     if(t==="ai")renderAIInputs();
     if(t==="mo")renderMonthly();
     window.scrollTo({top:0,behavior:"smooth"});
-  }catch(e){console.error("show",e)}
+  }catch(e){console.error(e)}
 }
 $$(".tabs button").forEach(b=>b.onclick=()=>show(b.dataset.t));
 $("#fq").oninput=renderCh;$("#fsub").onchange=renderCh;
@@ -1121,7 +1193,7 @@ PS.forEach(s=>{
   if(lc)lc.insertAdjacentHTML("beforeend",`<option>${s}</option>`);
 });
 renderDash();
-console.log("✓ Study Tracker ready. Chart.js:",HAS_CHART?"loaded":"MISSING");
+console.log("✓ Study Tracker ready. Charts:",HAS_CHART?"✓":"✗ (CDN blocked)");
 </script>
 </body>
 </html>
