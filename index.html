@@ -6,10 +6,10 @@
 <title>📚 Study Tracker</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
-:root{--bg:#faf5ea;--p:#fffdf8;--p2:#f5eddc;--ink:#3a2e1f;--ink2:#6b5842;--mut:#9b8a70;--ln:#e5d9c0;--ln2:#d4c4a3;--acc:#8b5a2b;--gold:#b8860b;--grn:#5a7d3f;--red:#b04a4a;--blu:#4a6b8a;--pur:#7a5aaa;--pnk:#a05a7a;--teal:#3a7a7a}
-body.dark{--bg:#0f1216;--p:#181c24;--p2:#1e242e;--ink:#e8e0d0;--ink2:#b8a890;--mut:#7a7565;--ln:#2a3140;--ln2:#3a4252;--acc:#d4a05a;--gold:#e0b060;--grn:#8fc47a;--red:#e08080;--blu:#8ab0d0;--pur:#a78bfa;--pnk:#e08aaa;--teal:#7ac8c8}
+:root{--bg:#faf5ea;--p:#fffdf8;--p2:#f5eddc;--ink:#3a2e1f;--ink2:#6b5842;--mut:#9b8a70;--ln:#e5d9c0;--ln2:#d4c4a3;--acc:#8b5a2b;--gold:#b8860b;--grn:#5a7d3f;--red:#b04a4a;--blu:#4a6b8a;--pur:#7a5aaa;--pnk:#a05a7a;--teal:#3a7a7a;--c11:#4a6b8a;--c12:#8b5a2b}
+body.dark{--bg:#0f1216;--p:#181c24;--p2:#1e242e;--ink:#e8e0d0;--ink2:#b8a890;--mut:#7a7565;--ln:#2a3140;--ln2:#3a4252;--acc:#d4a05a;--gold:#e0b060;--grn:#8fc47a;--red:#e08080;--blu:#8ab0d0;--pur:#a78bfa;--pnk:#e08aaa;--teal:#7ac8c8;--c11:#8ab0d0;--c12:#d4a05a}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--ink);font-family:-apple-system,system-ui,sans-serif;font-size:14px;line-height:1.5;padding:16px 12px 60px;max-width:1080px;margin:auto;transition:.2s}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,system-ui,sans-serif;font-size:14px;line-height:1.5;padding:16px 12px 60px;max-width:1100px;margin:auto;transition:.2s}
 header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
 .brand{display:flex;align-items:center;gap:10px}
 .logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--gold));display:grid;place-items:center;font-size:19px}
@@ -36,21 +36,23 @@ nav button.on{background:var(--acc);color:#fff;font-weight:600}
 .bar i{display:block;height:100%;background:var(--acc);border-radius:99px;transition:width .4s}
 .chartbox{position:relative;height:240px}
 .chart-fallback{text-align:center;color:var(--mut);padding:80px 10px;font-size:13px;line-height:1.7}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px}
-@media(max-width:800px){.grid2{grid-template-columns:1fr}}
-
-/* Subject radar grid */
-.radar-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:11px}
-.radar-card{background:var(--p2);border:1px solid var(--ln);border-radius:10px;padding:12px 10px 8px}
-.radar-card .title{display:flex;justify-content:space-between;align-items:center;padding:0 4px 6px;font-family:Georgia,serif;font-weight:700;font-size:13.5px}
+.class-band{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-radius:12px;margin-bottom:11px;font-family:Georgia,serif;font-weight:700;font-size:15px;color:#fff}
+.class-band.c11{background:linear-gradient(135deg,#4a6b8a,#5a7ba0)}
+.class-band.c12{background:linear-gradient(135deg,#8b5a2b,#b8860b)}
+.class-band span:last-child{font-family:-apple-system,system-ui,sans-serif;font-weight:500;font-size:12.5px;opacity:.9}
+.radar-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:11px;margin-bottom:11px}
+.radar-card{background:var(--p2);border:1px solid var(--ln);border-radius:10px;padding:10px 10px 6px}
+.radar-card .title{display:flex;justify-content:space-between;align-items:center;padding:0 4px 5px;font-family:Georgia,serif;font-weight:700;font-size:13px;flex-wrap:wrap;gap:4px}
 .radar-card .title span:last-child{font-family:-apple-system,system-ui,sans-serif;font-weight:500;font-size:11px;color:var(--mut)}
-.radar-card .rbox{position:relative;height:230px}
-
-.subj-bar{margin-bottom:14px}
-.subj-bar .row1{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px}
-.subj-bar .row1 b{font-family:Georgia,serif;font-size:13.5px}
-.subj-bar .row1 span{color:var(--mut);font-size:11.5px}
-.subj-bar .bar{height:8px;margin-top:0}
+.radar-card .rbox{position:relative;height:220px}
+.subj-prog{margin-bottom:16px}
+.subj-prog .hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.subj-prog .hdr b{font-family:Georgia,serif;font-size:14px}
+.subj-prog .hdr span{font-size:11.5px;color:var(--mut)}
+.cls-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;font-size:12.5px}
+.cls-row .lbl{width:34px;font-weight:700;font-size:11px;color:var(--mut);letter-spacing:.5px}
+.cls-row .bar{flex:1;height:8px;margin:0}
+.cls-row .pct{width:52px;text-align:right;color:var(--mut);font-size:11.5px}
 .ch{display:flex;align-items:center;gap:8px;padding:8px 11px;margin-bottom:4px;background:var(--p2);border:1px solid var(--ln);border-radius:9px;flex-wrap:wrap;font-size:13px}
 .ch .nm{flex:1;min-width:130px;font-weight:500}
 .metrics{display:flex;gap:3px;flex-wrap:wrap}
@@ -62,7 +64,9 @@ nav button.on{background:var(--acc);color:#fff;font-weight:600}
 .met[data-k="r2"].on{background:var(--pur);border-color:var(--pur)}
 .met[data-k="q"].on{background:var(--gold);border-color:var(--gold)}
 .met[data-k="n"].on{background:var(--pnk);border-color:var(--pnk)}
-.subj-hdr{display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px;font-family:Georgia,serif;font-weight:700;font-size:14px}
+.subj-hdr{display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px;padding:6px 10px;border-radius:8px;font-family:Georgia,serif;font-weight:700;font-size:13.5px}
+.subj-hdr.c11{background:linear-gradient(135deg,rgba(74,107,138,.15),rgba(74,107,138,.05));border-left:3px solid var(--c11)}
+.subj-hdr.c12{background:linear-gradient(135deg,rgba(139,90,43,.15),rgba(139,90,43,.05));border-left:3px solid var(--c12)}
 .subj-hdr .mini{font-size:11px;color:var(--mut);font-weight:500;font-family:-apple-system,system-ui,sans-serif}
 .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 input,select,textarea{font:inherit;background:var(--p2);border:1px solid var(--ln);border-radius:8px;padding:7px 10px;color:var(--ink);outline:none;font-size:13px}
@@ -80,6 +84,13 @@ input:focus,textarea:focus{border-color:var(--acc)}
 .empty{color:var(--mut);font-size:13px;text-align:center;padding:26px 10px}
 .empty .big{font-size:30px;margin-bottom:6px;opacity:.4}
 .date-hdr{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin:12px 0 6px}
+.month-card{background:var(--p2);border:1px solid var(--ln);border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:.15s}
+.month-card:hover{border-color:var(--acc)}
+.month-card.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+.month-card .mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-family:Georgia,serif;font-weight:700;font-size:14px}
+.month-card .mh span:last-child{font-family:-apple-system,system-ui,sans-serif;font-weight:500;font-size:11.5px;color:var(--mut)}
+.month-card .mrow{display:flex;gap:16px;font-size:12px;color:var(--ink2);flex-wrap:wrap}
+.month-card .mrow b{color:var(--ink)}
 #toast{position:fixed;bottom:18px;left:50%;transform:translate(-50%,100px);background:var(--ink);color:var(--bg);padding:10px 17px;border-radius:10px;font-size:12.5px;opacity:0;transition:.3s;pointer-events:none;z-index:999}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 </style>
@@ -95,6 +106,7 @@ input:focus,textarea:focus{border-color:var(--acc)}
     <button data-t="dash" class="on">Dashboard</button>
     <button data-t="ch">Chapters</button>
     <button data-t="tk">Tasks</button>
+    <button data-t="mo">Months</button>
   </nav>
   <div class="acts">
     <button id="themeBtn" class="btn">🌙</button>
@@ -107,26 +119,41 @@ input:focus,textarea:focus{border-color:var(--acc)}
 <section id="dash" class="panel on">
   <div class="stats" id="stats" style="margin-bottom:11px"></div>
   <div class="card">
-    <h3>Task Completion — Last 30 Days</h3>
+    <h3>This Month — Daily Task Completion</h3>
     <div class="chartbox"><canvas id="c1"></canvas></div>
   </div>
-  <div class="card">
-    <h3>Subject Strength — 5 Areas Per Subject</h3>
-    <div class="radar-grid" id="radarGrid"></div>
+  <div class="class-band c11">
+    <span>▬ CLASS 11</span>
+    <span id="c11Summary">—</span>
   </div>
-  <div class="card"><h3>Subject Progress</h3><div id="subjBars"></div></div>
+  <div class="radar-grid" id="radar11"></div>
+  <div class="class-band c12">
+    <span>▬ CLASS 12</span>
+    <span id="c12Summary">—</span>
+  </div>
+  <div class="radar-grid" id="radar12"></div>
+  <div class="card" style="margin-top:11px">
+    <h3>Subject Progress (11th vs 12th)</h3>
+    <div id="subjBars"></div>
+  </div>
 </section>
 
 <section id="ch" class="panel">
   <div class="card">
-    <div class="row" style="margin-bottom:11px">
-      <span style="font-size:12.5px;color:var(--mut);font-weight:600">Filter:</span>
+    <div class="row" style="margin-bottom:9px">
+      <span style="font-size:12px;color:var(--mut);font-weight:600;min-width:52px">Subject:</span>
       <button class="pill on" data-fsub="all">All</button>
       <button class="pill" data-fsub="Physics">Physics</button>
       <button class="pill" data-fsub="Physical Chemistry">Physical Chem</button>
       <button class="pill" data-fsub="Organic Chemistry">Organic Chem</button>
       <button class="pill" data-fsub="Inorganic Chemistry">Inorganic Chem</button>
       <button class="pill" data-fsub="Mathematics">Mathematics</button>
+    </div>
+    <div class="row" style="margin-bottom:11px">
+      <span style="font-size:12px;color:var(--mut);font-weight:600;min-width:52px">Class:</span>
+      <button class="pill on" data-fcls="all">Both</button>
+      <button class="pill" data-fcls="11">Class 11</button>
+      <button class="pill" data-fcls="12">Class 12</button>
     </div>
     <div id="chlist"></div>
     <p style="font-size:11.5px;color:var(--mut);margin-top:12px;line-height:1.7">
@@ -154,47 +181,84 @@ input:focus,textarea:focus{border-color:var(--acc)}
   </div>
 </section>
 
+<section id="mo" class="panel">
+  <div class="card">
+    <h3>Monthly History</h3>
+    <p style="font-size:11.5px;color:var(--mut);margin-bottom:12px">
+      Each month auto-saves on the 1st. Click any month for its graph.
+    </p>
+    <div id="monthList"></div>
+  </div>
+  <div class="card" id="monthDetail" style="display:none">
+    <h3 id="mdTitle">Month Detail</h3>
+    <div class="stats" id="mdStats" style="margin-bottom:12px"></div>
+    <div class="chartbox"><canvas id="c2"></canvas></div>
+  </div>
+</section>
+
 <div id="toast"></div>
 
 <script>
-/* ═══ FULL JEE SYLLABUS ═══ */
+/* ═══════════════════════════════════════════════════════════
+   1. SYLLABUS — Class 11 & 12 strictly separated
+   ═══════════════════════════════════════════════════════════ */
 const SYL = {
-  Physics: [
-    "Units & Measurements","Kinematics 1D","Kinematics 2D & Projectile","Laws of Motion","Friction",
-    "Circular Motion","Work Energy & Power","Center of Mass & Collisions","Rotational Motion","Gravitation",
-    "Mechanical Properties of Solids","Mechanical Properties of Fluids","Thermal Properties of Matter",
-    "Thermodynamics","Kinetic Theory of Gases","Simple Harmonic Motion","Waves & Sound","Electrostatics",
-    "Capacitance","Current Electricity","Moving Charges & Magnetism","Magnetism & Matter",
-    "Electromagnetic Induction","Alternating Current","Electromagnetic Waves","Ray Optics","Wave Optics",
-    "Dual Nature of Radiation","Atoms","Nuclei","Semiconductors","Experimental Physics"
-  ],
-  "Physical Chemistry": [
-    "Some Basic Concepts of Chemistry","Mole Concept","Structure of Atom","Gaseous State",
-    "Thermodynamics","Thermochemistry","Chemical Equilibrium","Ionic Equilibrium","Redox Reactions",
-    "Solutions","Electrochemistry","Chemical Kinetics","Surface Chemistry","Solid State",
-    "Nuclear Chemistry","States of Matter"
-  ],
-  "Organic Chemistry": [
-    "Basics of Organic Chemistry (GOC)","Isomerism","Stereochemistry","Reaction Mechanism",
-    "Hydrocarbons","Haloalkanes & Haloarenes","Alcohols, Phenols & Ethers","Aldehydes & Ketones",
-    "Carboxylic Acids","Amines","Biomolecules","Polymers","Chemistry in Everyday Life",
-    "Named Reactions","Practical Organic Chemistry"
-  ],
-  "Inorganic Chemistry": [
-    "Periodic Table & Periodicity","Chemical Bonding & Molecular Structure","Hydrogen & s-Block Elements",
-    "p-Block (Group 13 & 14)","p-Block (Group 15, 16, 17, 18)","d-Block & Transition Elements",
-    "f-Block Elements","Coordination Compounds","Metallurgy","Qualitative Analysis",
-    "Environmental Chemistry","Practical Inorganic Chemistry"
-  ],
-  Mathematics: [
-    "Sets & Relations","Functions","Trigonometric Ratios & Identities","Trigonometric Equations",
-    "Inverse Trigonometric Functions","Complex Numbers","Quadratic Equations","Sequences & Series",
-    "Permutations & Combinations","Binomial Theorem","Matrices","Determinants","Straight Lines",
-    "Circles","Parabola","Ellipse","Hyperbola","Limits & Continuity","Differentiation",
-    "Application of Derivatives","Indefinite Integration","Definite Integration","Area Under Curves",
-    "Differential Equations","Vectors","3D Geometry","Probability","Statistics",
-    "Mathematical Reasoning","Linear Programming"
-  ]
+  Physics: {
+    "11": [
+      "Units & Measurements","Kinematics 1D","Kinematics 2D & Projectile","Vectors",
+      "Laws of Motion","Friction","Work, Energy & Power","Circular Motion",
+      "Center of Mass & Collisions","Rotational Motion","Gravitation",
+      "Mechanical Properties of Solids","Mechanical Properties of Fluids",
+      "Thermal Properties of Matter","Thermodynamics","Kinetic Theory of Gases",
+      "Oscillations (SHM)","Waves"
+    ],
+    "12": [
+      "Electric Charges & Fields","Electrostatic Potential & Capacitance","Current Electricity",
+      "Moving Charges & Magnetism","Magnetism & Matter","Electromagnetic Induction",
+      "Alternating Current","Electromagnetic Waves","Ray Optics","Wave Optics",
+      "Dual Nature of Radiation & Matter","Atoms","Nuclei","Semiconductor Electronics"
+    ]
+  },
+  "Physical Chemistry": {
+    "11": [
+      "Some Basic Concepts of Chemistry","Structure of Atom","States of Matter",
+      "Thermodynamics & Thermochemistry","Equilibrium (Chemical + Ionic)","Redox Reactions"
+    ],
+    "12": ["Solutions","Electrochemistry","Chemical Kinetics","Surface Chemistry","Solid State"]
+  },
+  "Organic Chemistry": {
+    "11": ["Basics of Organic Chemistry (GOC)","Isomerism","Hydrocarbons"],
+    "12": [
+      "Haloalkanes & Haloarenes","Alcohols, Phenols & Ethers",
+      "Aldehydes, Ketones & Carboxylic Acids","Amines","Biomolecules","Polymers",
+      "Chemistry in Everyday Life"
+    ]
+  },
+  "Inorganic Chemistry": {
+    "11": [
+      "Classification of Elements & Periodicity","Chemical Bonding & Molecular Structure",
+      "Hydrogen","s-Block Elements","p-Block (Group 13 & 14)","Environmental Chemistry"
+    ],
+    "12": [
+      "p-Block (Group 15, 16, 17, 18)","d-Block & Transition Elements","f-Block Elements",
+      "Coordination Compounds","General Principles of Isolation of Elements","Qualitative Analysis"
+    ]
+  },
+  Mathematics: {
+    "11": [
+      "Sets","Relations & Functions","Trigonometric Functions",
+      "Complex Numbers & Quadratic Equations","Linear Inequalities",
+      "Permutations & Combinations","Binomial Theorem","Sequences & Series",
+      "Straight Lines","Conic Sections","Introduction to 3D Geometry",
+      "Limits & Derivatives","Mathematical Reasoning","Statistics","Probability"
+    ],
+    "12": [
+      "Inverse Trigonometric Functions","Matrices","Determinants",
+      "Continuity & Differentiability","Application of Derivatives","Integrals",
+      "Application of Integrals","Differential Equations","Vector Algebra",
+      "Three Dimensional Geometry","Linear Programming","Probability (Advanced)"
+    ]
+  }
 };
 
 const METRICS = [
@@ -207,37 +271,35 @@ const METRICS = [
 
 const SUBS = Object.keys(SYL);
 const SCLR = {
-  Physics: "#4a6b8a",
-  "Physical Chemistry": "#5a7d3f",
-  "Organic Chemistry": "#7a5aaa",
-  "Inorganic Chemistry": "#3a7a7a",
-  Mathematics: "#b8860b"
+  Physics:"#4a6b8a","Physical Chemistry":"#5a7d3f","Organic Chemistry":"#7a5aaa",
+  "Inorganic Chemistry":"#3a7a7a",Mathematics:"#b8860b"
 };
-const KEY = "study-tracker-v5";
+const KEY = "study-tracker-v8";
+const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-/* ═══ STATE ═══ */
-let S = {};
-try { S = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e) { S = {}; }
-S.ch = S.ch || {};
-S.tk = S.tk || {};
-
-const save = () => {
-  try { localStorage.setItem(KEY, JSON.stringify(S)); }
-  catch(e) { toast("⚠ Storage full — export a backup!"); }
-};
-
+/* ═══════════════════════════════════════════════════════════
+   2. HELPERS — must be defined BEFORE state init
+   ═══════════════════════════════════════════════════════════ */
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 const pad = n => String(n).padStart(2, '0');
 const fmt = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 const today = () => fmt(new Date());
+const monthKey = d => d.getFullYear() + '-' + pad(d.getMonth() + 1);
+const todayMonth = () => monthKey(new Date());
+
+function monthLabel(ym) {
+  const [y, m] = ym.split("-");
+  return MONTH_NAMES[+m - 1] + " " + y;
+}
 
 function toast(msg) {
   const t = $("#toast");
+  if (!t) return;
   t.textContent = msg;
   t.classList.add("on");
   clearTimeout(t._);
-  t._ = setTimeout(() => t.classList.remove("on"), 2000);
+  t._ = setTimeout(() => t.classList.remove("on"), 2200);
 }
 
 function esc(s) {
@@ -246,24 +308,170 @@ function esc(s) {
   }[c]));
 }
 
-function chState(sub, name) {
-  const k = sub + '|' + name;
+function chKey(sub, cls, name) { return sub + '|' + cls + '|' + name; }
+
+/* ═══════════════════════════════════════════════════════════
+   3. STATE (safe to init now that helpers exist)
+   ═══════════════════════════════════════════════════════════ */
+let S = {};
+try {
+  S = JSON.parse(localStorage.getItem(KEY) || 'null') || {};
+} catch(e) { S = {}; }
+
+S.ch = S.ch || {};
+S.tk = S.tk || {};
+S.months = S.months || {};
+if (!S.currentMonth) S.currentMonth = todayMonth();
+
+const save = () => {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch(e) { toast("⚠ Storage full — export a backup!"); }
+};
+
+function chState(sub, cls, name) {
+  const k = chKey(sub, cls, name);
   if (!S.ch[k]) S.ch[k] = { c:false, r1:false, r2:false, q:false, n:false };
   return S.ch[k];
 }
 
-/* ═══ STATS ═══ */
-function subjectStats(sub) {
-  const total = SYL[sub].length;
+/* ═══════════════════════════════════════════════════════════
+   4. MIGRATIONS — v5 → v6 → v8 chain
+   ═══════════════════════════════════════════════════════════ */
+function migrateLegacy() {
+  /* Already have v8 data → skip */
+  if (localStorage.getItem(KEY)) return;
+
+  /* Try v7 first, then v6, then v5 */
+  const sources = ["study-tracker-v7", "study-tracker-v6", "study-tracker-v5"];
+  let migrated = false;
+
+  for (const src of sources) {
+    const raw = localStorage.getItem(src);
+    if (!raw) continue;
+    try {
+      const old = JSON.parse(raw);
+      if (!old.ch && !old.tk) continue;
+
+      const newS = {
+        ch: {}, tk: old.tk || {}, months: {},
+        currentMonth: todayMonth()
+      };
+
+      const parts = src.split("-").pop(); // "v5", "v6", "v7"
+
+      if (parts === "v7" || parts === "v6") {
+        /* v6 & v7 already have sub|cls|name structure */
+        newS.ch = old.ch || {};
+        newS.months = old.months || {};
+        if (old.currentMonth) newS.currentMonth = old.currentMonth;
+      } else {
+        /* v5 has sub|name → migrate to sub|cls|name */
+        Object.keys(old.ch || {}).forEach(oldKey => {
+          const i = oldKey.indexOf('|');
+          if (i < 0) return;
+          const sub = oldKey.slice(0, i);
+          const name = oldKey.slice(i + 1);
+          if (!SYL[sub]) return;
+
+          /* Exact match in either class */
+          for (const cls of ["11","12"]) {
+            if ((SYL[sub][cls] || []).includes(name)) {
+              newS.ch[`${sub}|${cls}|${name}`] = old.ch[oldKey];
+              return;
+            }
+          }
+          /* Fuzzy match */
+          for (const cls of ["11","12"]) {
+            const found = (SYL[sub][cls] || []).find(n =>
+              n.toLowerCase().includes(name.toLowerCase()) ||
+              name.toLowerCase().includes(n.toLowerCase())
+            );
+            if (found) {
+              newS.ch[`${sub}|${cls}|${found}`] = old.ch[oldKey];
+              return;
+            }
+          }
+        });
+      }
+
+      localStorage.setItem(KEY, JSON.stringify(newS));
+      console.log(`✓ Migrated from ${parts}`);
+      setTimeout(() => toast(`✓ Migrated data from ${parts}`), 600);
+      migrated = true;
+      break;
+    } catch(e) {
+      console.warn("Migration failed for", src, e);
+    }
+  }
+
+  if (!migrated) console.log("No legacy data found — starting fresh");
+}
+
+/* After migration, backfill archives for any month already in S.tk */
+function backfillArchives() {
+  const months = new Set();
+  Object.keys(S.tk).forEach(k => months.add(k.slice(0, 7)));
+
+  months.forEach(ym => {
+    if (ym === S.currentMonth) return;      // don't archive current
+    if (S.months[ym]) return;                // already archived
+    archiveMonth(ym);
+  });
+}
+
+function archiveMonth(ym) {
+  const tasks = {};
+  Object.keys(S.tk).forEach(k => {
+    if (k.startsWith(ym)) tasks[k] = S.tk[k];
+  });
+
+  const chSnap = {};
+  SUBS.forEach(sub => {
+    chSnap[sub] = { "11": {c:0,r1:0,r2:0,q:0,n:0,total:0},
+                    "12": {c:0,r1:0,r2:0,q:0,n:0,total:0} };
+    ["11","12"].forEach(cls => {
+      const list = SYL[sub][cls] || [];
+      chSnap[sub][cls].total = list.length;
+      list.forEach(name => {
+        const st = S.ch[chKey(sub, cls, name)];
+        if (!st) return;
+        METRICS.forEach(m => { if (st[m.k]) chSnap[sub][cls][m.k]++; });
+      });
+    });
+  });
+
+  S.months[ym] = { tasks, chSnap, archivedAt: new Date().toISOString() };
+}
+
+function archiveCurrentMonth() {
+  if (!S.currentMonth) return;
+  archiveMonth(S.currentMonth);
+  save();
+}
+
+function checkMonthChange() {
+  const now = todayMonth();
+  if (S.currentMonth !== now) {
+    archiveCurrentMonth();
+    S.currentMonth = now;
+    save();
+    toast("📅 New month started — previous month archived");
+    return true;
+  }
+  return false;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   5. STATS
+   ═══════════════════════════════════════════════════════════ */
+function classStats(sub, cls) {
+  const list = SYL[sub][cls] || [];
+  const total = list.length;
   const cnt = {c:0, r1:0, r2:0, q:0, n:0};
-  SYL[sub].forEach(name => {
-    const st = S.ch[sub + '|' + name];
+  list.forEach(name => {
+    const st = S.ch[chKey(sub, cls, name)];
     if (!st) return;
-    if (st.c) cnt.c++;
-    if (st.r1) cnt.r1++;
-    if (st.r2) cnt.r2++;
-    if (st.q) cnt.q++;
-    if (st.n) cnt.n++;
+    METRICS.forEach(m => { if (st[m.k]) cnt[m.k]++; });
   });
   const pct = {};
   METRICS.forEach(m => pct[m.k] = total ? cnt[m.k] / total * 100 : 0);
@@ -271,6 +479,30 @@ function subjectStats(sub) {
     ? (cnt.c + cnt.r1 + cnt.r2 + cnt.q + cnt.n) / (total * METRICS.length) * 100
     : 0;
   return { total, cnt, pct, overall };
+}
+
+function subjectStats(sub) {
+  const s11 = classStats(sub, "11");
+  const s12 = classStats(sub, "12");
+  const total = s11.total + s12.total;
+  const cnt = {c:0, r1:0, r2:0, q:0, n:0};
+  METRICS.forEach(m => cnt[m.k] = s11.cnt[m.k] + s12.cnt[m.k]);
+  const pct = {};
+  METRICS.forEach(m => pct[m.k] = total ? cnt[m.k] / total * 100 : 0);
+  const overall = total
+    ? (cnt.c + cnt.r1 + cnt.r2 + cnt.q + cnt.n) / (total * METRICS.length) * 100
+    : 0;
+  return { total, cnt, pct, overall, s11, s12 };
+}
+
+function classOverall(cls) {
+  let tot = 0, sum = 0;
+  SUBS.forEach(s => {
+    const st = classStats(s, cls);
+    tot += st.total;
+    sum += st.overall * st.total;
+  });
+  return { total: tot, pct: tot ? sum / tot : 0 };
 }
 
 function taskStats(from, to) {
@@ -294,7 +526,53 @@ function currentStreak() {
   return n;
 }
 
-/* ═══ CHARTS ═══ */
+function monthSummary(ym) {
+  const isLive = ym === S.currentMonth;
+  let tasks, chSnap;
+  if (isLive) {
+    /* Current month → read live from S.tk */
+    tasks = {};
+    Object.keys(S.tk).forEach(k => { if (k.startsWith(ym)) tasks[k] = S.tk[k]; });
+    chSnap = null;
+  } else if (S.months[ym]) {
+    tasks = S.months[ym].tasks || {};
+    chSnap = S.months[ym].chSnap || null;
+  } else {
+    return null;
+  }
+
+  let tot = 0, done = 0;
+  Object.values(tasks).forEach(arr => {
+    tot += arr.length;
+    done += arr.filter(t => t.done).length;
+  });
+
+  let chapters = 0;
+  if (chSnap) {
+    Object.values(chSnap).forEach(sub => {
+      ["11","12"].forEach(cls => {
+        if (sub[cls]) chapters += sub[cls].c || 0;
+      });
+    });
+  } else {
+    /* Live month — count chapters */
+    SUBS.forEach(sub => {
+      ["11","12"].forEach(cls => {
+        const list = SYL[sub][cls] || [];
+        list.forEach(name => {
+          const st = S.ch[chKey(sub, cls, name)];
+          if (st && st.c) chapters++;
+        });
+      });
+    });
+  }
+
+  return { tasks: tot, done, pct: tot ? done/tot*100 : 0, chapters, live: isLive };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   6. CHARTS
+   ═══════════════════════════════════════════════════════════ */
 const charts = {};
 const HAS_CHART = typeof Chart !== "undefined";
 if (HAS_CHART) {
@@ -305,89 +583,103 @@ if (HAS_CHART) {
 const gridC = { color: "#e5d9c0", drawBorder: false };
 const tickC = { color: "#9b8a70" };
 
-/* Task line chart */
-function drawTaskChart() {
+function drawMonthTaskChart(canvasId, ym) {
   if (!HAS_CHART) return;
-  if (charts.c1) charts.c1.destroy();
+  if (charts[canvasId]) charts[canvasId].destroy();
+  const cv = document.getElementById(canvasId);
+  if (!cv) return;
+
+  const [y, m] = ym.split("-").map(Number);
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const isLive = ym === S.currentMonth;
+
   const labels = [], data = [];
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const k = fmt(d);
-    const arr = S.tk[k] || [];
-    labels.push(d.getDate() + '/' + (d.getMonth() + 1));
+  for (let d = 1; d <= daysInMonth; d++) {
+    const k = ym + "-" + pad(d);
+    let arr;
+    if (isLive) {
+      arr = S.tk[k] || [];
+    } else if (S.months[ym] && S.months[ym].tasks[k]) {
+      arr = S.months[ym].tasks[k];
+    } else {
+      arr = S.tk[k] || [];
+    }
+    labels.push(d);
     data.push(arr.length ? arr.filter(t => t.done).length / arr.length * 100 : 0);
   }
-  charts.c1 = new Chart($("#c1"), {
-    type: "line",
-    data: { labels, datasets: [{
-      data, borderColor: "#8b5a2b", backgroundColor: "#8b5a2b30",
-      borderWidth: 2.5, tension: .35, fill: true,
-      pointRadius: 2.5, pointBackgroundColor: "#8b5a2b",
-      pointBorderColor: "#fffdf8", pointBorderWidth: 2
-    }]},
+
+  charts[canvasId] = new Chart(cv, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: data.map(v => v === 100 ? "#5a7d3f" : v > 0 ? "#8b5a2b" : "#ede2c9"),
+        borderRadius: 3, maxBarThickness: 20
+      }]
+    },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false },
+      plugins: {
+        legend: { display: false },
         tooltip: { backgroundColor: "#3a2e1f", padding: 10,
-          callbacks: { label: c => " " + (c.parsed.y || 0).toFixed(0) + "%" } } },
+          callbacks: { label: c => " " + c.parsed.y.toFixed(0) + "% completed" } }
+      },
       scales: {
-        y: { beginAtZero: true, max: 100, grid: gridC, ticks: { ...tickC, callback: v => v + "%" } },
+        y: { beginAtZero: true, max: 100, grid: gridC,
+          ticks: { ...tickC, callback: v => v + "%" } },
         x: { grid: { display: false }, ticks: { ...tickC, maxRotation: 0, autoSkipPadding: 6 } }
       }
     }
   });
 }
 
-/* ⭐ NEW — One radar per subject */
-function drawSubjectRadars() {
-  const grid = $("#radarGrid");
+function drawClassRadars(cls, containerId) {
+  const grid = document.getElementById(containerId);
+  if (!grid) return;
 
-  /* Build/refresh the grid skeleton */
   const isDark = document.body.classList.contains("dark");
   const gridColor = isDark ? "#2a3140" : "#e5d9c0";
   const tickColor = isDark ? "#7a7565" : "#9b8a70";
   const lblColor = isDark ? "#b8a890" : "#6b5842";
 
   if (!grid.querySelector(".radar-card")) {
-    grid.innerHTML = SUBS.map(sub => {
-      const s = subjectStats(sub);
-      const donePct = s.total ? (s.cnt.c / s.total * 100).toFixed(0) : 0;
-      return `<div class="radar-card" data-sub="${esc(sub)}">
+    grid.innerHTML = SUBS.map((sub, idx) =>
+      `<div class="radar-card" data-sub="${esc(sub)}" data-cls="${cls}">
         <div class="title" style="color:${SCLR[sub]}">
           <span>● ${esc(sub)}</span>
-          <span>${donePct}% done</span>
+          <span class="mini">0%</span>
         </div>
-        <div class="rbox"><canvas id="rad-${SUBS.indexOf(sub)}"></canvas></div>
-      </div>`;
-    }).join("");
+        <div class="rbox"><canvas id="rad-${cls}-${idx}"></canvas></div>
+      </div>`).join("");
   }
 
-  /* Draw or refresh each radar */
   SUBS.forEach((sub, idx) => {
-    const cv = document.getElementById("rad-" + idx);
+    const cv = document.getElementById(`rad-${cls}-${idx}`);
     if (!cv) return;
-    const st = subjectStats(sub);
+    const st = classStats(sub, cls);
     const allZero = METRICS.every(m => st.pct[m.k] === 0);
 
-    if (charts["rad" + idx]) { charts["rad" + idx].destroy(); charts["rad" + idx] = null; }
-
-    if (allZero && !HAS_CHART) {
-      cv.parentElement.innerHTML = '<div class="chart-fallback" style="padding:60px 10px;font-size:12px">No data yet</div>';
-      return;
+    if (charts[`rad${cls}_${idx}`]) {
+      charts[`rad${cls}_${idx}`].destroy();
+      charts[`rad${cls}_${idx}`] = null;
     }
 
     if (!HAS_CHART) {
       cv.parentElement.innerHTML = '<div class="chart-fallback" style="padding:60px 10px;font-size:12px">📉 Chart.js unavailable</div>';
       return;
     }
+    if (allZero) {
+      cv.parentElement.innerHTML = '<div class="chart-fallback" style="padding:60px 10px;font-size:12px">No data yet<br><small>Tick some chapters</small></div>';
+      return;
+    }
 
-    charts["rad" + idx] = new Chart(cv, {
+    charts[`rad${cls}_${idx}`] = new Chart(cv, {
       type: "radar",
       data: {
         labels: METRICS.map(m => m.lbl),
         datasets: [{
-          label: sub,
+          label: sub + ' ' + cls,
           data: METRICS.map(m => st.pct[m.k]),
           backgroundColor: SCLR[sub] + "44",
           borderColor: SCLR[sub],
@@ -407,20 +699,16 @@ function drawSubjectRadars() {
             backgroundColor: "#3a2e1f", padding: 10,
             callbacks: {
               title: items => METRICS[items[0].dataIndex].full,
-              label: c => " " + c.parsed.r.toFixed(0) + "% (" + st.cnt[METRICS[c.dataIndex].k] + "/" + st.total + ")"
+              label: c => " " + c.parsed.r.toFixed(0) + "% (" +
+                st.cnt[METRICS[c.dataIndex].k] + "/" + st.total + ")"
             }
           }
         },
         scales: {
           r: {
             beginAtZero: true, max: 100,
-            ticks: {
-              stepSize: 25, color: tickColor,
-              backdropColor: "transparent",
-              font: { size: 8 },
-              showLabelBackdrop: false,
-              callback: v => v + "%"
-            },
+            ticks: { stepSize: 25, color: tickColor, backdropColor: "transparent",
+              showLabelBackdrop: false, font: { size: 8 }, callback: v => v + "%" },
             grid: { color: gridColor },
             angleLines: { color: gridColor },
             pointLabels: { color: lblColor, font: { size: 10, weight: "600" } }
@@ -430,16 +718,18 @@ function drawSubjectRadars() {
     });
   });
 
-  /* Update the % done badge live */
   grid.querySelectorAll(".radar-card").forEach(card => {
-    const sub = card.dataset.sub;
-    const s = subjectStats(sub);
-    const donePct = s.total ? (s.cnt.c / s.total * 100).toFixed(0) : 0;
-    card.querySelector(".title span:last-child").textContent = donePct + "% done";
+    const sub = card.dataset.sub, c = card.dataset.cls;
+    const s = classStats(sub, c);
+    const pct = s.total ? (s.cnt.c / s.total * 100).toFixed(0) : 0;
+    const mini = card.querySelector(".mini");
+    if (mini) mini.textContent = pct + "% done";
   });
 }
 
-/* ═══ DASHBOARD ═══ */
+/* ═══════════════════════════════════════════════════════════
+   7. DASHBOARD
+   ═══════════════════════════════════════════════════════════ */
 function renderDash() {
   const allStats = SUBS.map(s => subjectStats(s));
   const totalChapters = allStats.reduce((a, s) => a + s.total, 0);
@@ -465,68 +755,93 @@ function renderDash() {
 
   $("#tag").textContent = `${doneChapters} chapters done · ${streak}-day streak`;
 
+  const c11 = classOverall("11"), c12 = classOverall("12");
+  $("#c11Summary").textContent = `${c11.pct.toFixed(1)}% overall · ${c11.total} chapters`;
+  $("#c12Summary").textContent = `${c12.pct.toFixed(1)}% overall · ${c12.total} chapters`;
+
   $("#subjBars").innerHTML = SUBS.map(sub => {
     const s = subjectStats(sub);
     const col = SCLR[sub];
-    return `<div class="subj-bar">
-      <div class="row1">
+    return `<div class="subj-prog">
+      <div class="hdr">
         <b style="color:${col}">${sub}</b>
         <span>${s.cnt.c}/${s.total} done · ${s.overall.toFixed(0)}% overall</span>
       </div>
-      <div class="bar"><i style="width:${s.overall}%;background:${col}"></i></div>
+      <div class="cls-row">
+        <span class="lbl">11th</span>
+        <div class="bar"><i style="width:${s.s11.overall}%;background:var(--c11)"></i></div>
+        <span class="pct">${s.s11.overall.toFixed(0)}%</span>
+      </div>
+      <div class="cls-row">
+        <span class="lbl">12th</span>
+        <div class="bar"><i style="width:${s.s12.overall}%;background:var(--c12)"></i></div>
+        <span class="pct">${s.s12.overall.toFixed(0)}%</span>
+      </div>
     </div>`;
   }).join("");
 
-  drawTaskChart();
-  drawSubjectRadars();
+  drawMonthTaskChart("c1", S.currentMonth);
+  drawClassRadars("11", "radar11");
+  drawClassRadars("12", "radar12");
 }
 
-/* ═══ CHAPTERS ═══ */
-let chFilter = "all";
+/* ═══════════════════════════════════════════════════════════
+   8. CHAPTERS
+   ═══════════════════════════════════════════════════════════ */
+let chFilter = "all", clsFilter = "all";
+
 function renderChapters() {
   let html = "";
   SUBS.forEach(sub => {
     if (chFilter !== "all" && chFilter !== sub) return;
-    const s = subjectStats(sub);
-    html += `<div class="subj-hdr" data-sub="${esc(sub)}">
-      <span style="color:${SCLR[sub]}">● ${esc(sub)}</span>
-      <span class="mini">${s.cnt.c}/${s.total} done · ${s.overall.toFixed(0)}%</span>
-    </div>`;
-    SYL[sub].forEach(name => {
-      const st = chState(sub, name);
-      const metricsHtml = METRICS.map(m =>
-        `<button class="met ${st[m.k] ? 'on' : ''}" data-sub="${esc(sub)}" data-ch="${esc(name)}" data-k="${m.k}" title="${m.full}">${m.lbl}</button>`
-      ).join("");
-      html += `<div class="ch">
-        <span class="nm">${esc(name)}</span>
-        <div class="metrics">${metricsHtml}</div>
+    const classes = clsFilter === "all" ? ["11","12"] : [clsFilter];
+    classes.forEach(cls => {
+      const list = SYL[sub][cls] || [];
+      if (!list.length) return;
+      const s = classStats(sub, cls);
+      html += `<div class="subj-hdr c${cls}" data-sub="${esc(sub)}" data-cls="${cls}">
+        <span style="color:${SCLR[sub]}">● ${esc(sub)}
+          <span style="font-family:-apple-system,system-ui,sans-serif;font-size:11px;background:var(--c${cls});color:#fff;padding:2px 8px;border-radius:99px;margin-left:6px">Class ${cls}</span>
+        </span>
+        <span class="mini">${s.cnt.c}/${s.total} done · ${s.overall.toFixed(0)}%</span>
       </div>`;
+      list.forEach(name => {
+        const st = chState(sub, cls, name);
+        const metricsHtml = METRICS.map(m =>
+          `<button class="met ${st[m.k] ? 'on' : ''}"
+            data-sub="${esc(sub)}" data-cls="${cls}" data-ch="${esc(name)}" data-k="${m.k}"
+            title="${m.full}">${m.lbl}</button>`).join("");
+        html += `<div class="ch">
+          <span class="nm">${esc(name)}</span>
+          <div class="metrics">${metricsHtml}</div>
+        </div>`;
+      });
     });
   });
-  $("#chlist").innerHTML = html;
+  $("#chlist").innerHTML = html || '<div class="empty"><div class="big">🔍</div>No chapters match filters</div>';
 }
 
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest(".met");
   if (!b) return;
-  const sub = b.dataset.sub;
-  const ch = b.dataset.ch;
-  const k = b.dataset.k;
-  const st = chState(sub, ch);
+  const { sub, cls, ch, k } = b.dataset;
+  const st = chState(sub, cls, ch);
   st[k] = !st[k];
   save();
   b.classList.toggle("on", st[k]);
 
-  /* Live update the subject header */
-  const s = subjectStats(sub);
-  const hdr = document.querySelector(`.subj-hdr[data-sub="${CSS.escape(sub)}"]`);
+  const s = classStats(sub, cls);
+  const hdr = document.querySelector(`.subj-hdr[data-sub="${CSS.escape(sub)}"][data-cls="${cls}"]`);
   if (hdr) {
-    hdr.querySelector(".mini").textContent =
+    const mini = hdr.querySelector(".mini");
+    if (mini) mini.textContent =
       `${s.cnt.c}/${s.total} done · ${s.overall.toFixed(0)}%`;
   }
 });
 
-/* ═══ TASKS ═══ */
+/* ═══════════════════════════════════════════════════════════
+   9. TASKS
+   ═══════════════════════════════════════════════════════════ */
 let taskRange = "day";
 
 function dateRange(range) {
@@ -548,7 +863,9 @@ function dateRange(range) {
 
 function renderTasks() {
   const { from, to } = dateRange(taskRange);
-  const dates = Object.keys(S.tk).filter(k => k >= from && k <= to && S.tk[k].length).sort();
+  const dates = Object.keys(S.tk)
+    .filter(k => k >= from && k <= to && S.tk[k].length)
+    .sort();
   const list = $("#tlist");
   if (!dates.length) {
     list.innerHTML = '<div class="empty"><div class="big">📝</div>No tasks in this range</div>';
@@ -564,9 +881,9 @@ function renderTasks() {
     html += `<div class="date-hdr">${lbl} · ${done}/${arr.length} (${pct.toFixed(0)}%)</div>`;
     arr.forEach(t => {
       html += `<div class="task ${t.done ? 'done' : ''}">
-        <button class="chk" data-d="${dk}" data-id="${t.id}">✓</button>
+        <button class="chk" data-d="${dk}" data-id="${esc(t.id)}">✓</button>
         <span class="tx">${esc(t.text)}</span>
-        <button class="del" data-d="${dk}" data-id="${t.id}">×</button>
+        <button class="del" data-d="${dk}" data-id="${esc(t.id)}">×</button>
       </div>`;
     });
   });
@@ -591,17 +908,82 @@ document.addEventListener("click", e => {
   }
 });
 
-/* ═══ EVENTS ═══ */
+/* ═══════════════════════════════════════════════════════════
+   10. MONTHS TAB
+   ═══════════════════════════════════════════════════════════ */
+let selectedMonth = null;
+
+function renderMonths() {
+  const set = new Set(Object.keys(S.months));
+  set.add(S.currentMonth);
+  const arr = Array.from(set).sort().reverse();
+
+  /* Auto-select current month on first visit */
+  if (!selectedMonth) selectedMonth = S.currentMonth;
+
+  $("#monthList").innerHTML = arr.map(ym => {
+    const s = monthSummary(ym);
+    if (!s) return "";
+    const isLive = ym === S.currentMonth;
+    const label = monthLabel(ym) + (isLive ? " · current" : "");
+    return `<div class="month-card ${selectedMonth === ym ? 'on' : ''}" data-m="${ym}">
+      <div class="mh">
+        <span>${label}</span>
+        <span>${s.pct.toFixed(0)}% completed</span>
+      </div>
+      <div class="bar"><i style="width:${s.pct}%"></i></div>
+      <div class="mrow" style="margin-top:9px">
+        <span>📝 <b>${s.done}/${s.tasks}</b> tasks</span>
+        <span>🏆 <b>${s.chapters}</b> chapters done</span>
+      </div>
+    </div>`;
+  }).join("");
+
+  $("#monthList").querySelectorAll(".month-card").forEach(c => {
+    c.onclick = () => { selectedMonth = c.dataset.m; renderMonths(); };
+  });
+
+  if (selectedMonth && arr.includes(selectedMonth)) showMonthDetail(selectedMonth);
+  else $("#monthDetail").style.display = "none";
+}
+
+function showMonthDetail(ym) {
+  const s = monthSummary(ym);
+  if (!s) return;
+  const isLive = ym === S.currentMonth;
+
+  $("#monthDetail").style.display = "block";
+  $("#mdTitle").textContent = monthLabel(ym) + (isLive ? " — Current" : " — Archived");
+
+  $("#mdStats").innerHTML = `
+    <div class="stat"><span class="lb">📝 Tasks Done</span>
+      <span class="vl">${s.done}<small>/${s.tasks}</small></span>
+      <div class="bar"><i style="width:${s.pct}%"></i></div></div>
+    <div class="stat"><span class="lb">📊 Rate</span>
+      <span class="vl">${s.pct.toFixed(1)}<small>%</small></span></div>
+    <div class="stat"><span class="lb">🏆 Chapters</span>
+      <span class="vl" style="color:var(--grn)">${s.chapters}</span></div>`;
+
+  drawMonthTaskChart("c2", ym);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   11. EVENTS
+   ═══════════════════════════════════════════════════════════ */
 $("#add").onclick = () => {
   const text = $("#ti").value.trim();
   if (!text) { $("#ti").focus(); return; }
   const dk = $("#td").value || today();
-  (S.tk[dk] = S.tk[dk] || []).push({ id: Date.now().toString(36), text, done: false });
+  (S.tk[dk] = S.tk[dk] || []).push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
+    text, done: false
+  });
   save();
   $("#ti").value = "";
   $("#ti").focus();
   renderTasks();
 };
+
 $("#ti").onkeydown = e => { if (e.key === "Enter") $("#add").click(); };
 $("#td").value = today();
 
@@ -619,6 +1001,13 @@ $$("[data-fsub]").forEach(b => b.onclick = () => {
   renderChapters();
 });
 
+$$("[data-fcls]").forEach(b => b.onclick = () => {
+  $$("[data-fcls]").forEach(x => x.classList.remove("on"));
+  b.classList.add("on");
+  clsFilter = b.dataset.fcls;
+  renderChapters();
+});
+
 $$("nav button").forEach(b => b.onclick = () => {
   $$(".panel").forEach(p => p.classList.remove("on"));
   $$("nav button").forEach(x => x.classList.remove("on"));
@@ -627,6 +1016,7 @@ $$("nav button").forEach(b => b.onclick = () => {
   if (b.dataset.t === "dash") renderDash();
   if (b.dataset.t === "ch") renderChapters();
   if (b.dataset.t === "tk") renderTasks();
+  if (b.dataset.t === "mo") renderMonths();
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
@@ -634,8 +1024,10 @@ $$("nav button").forEach(b => b.onclick = () => {
 function applyTheme() {
   const dark = localStorage.getItem("theme") === "dark";
   document.body.classList.toggle("dark", dark);
-  $("#themeBtn").textContent = dark ? "☀️" : "🌙";
+  const tb = $("#themeBtn");
+  if (tb) tb.textContent = dark ? "☀️" : "🌙";
 }
+
 $("#themeBtn").onclick = () => {
   const dark = !document.body.classList.contains("dark");
   localStorage.setItem("theme", dark ? "dark" : "light");
@@ -651,14 +1043,12 @@ $("#themeBtn").onclick = () => {
         if (c.options.scales) {
           const g = dark ? "#2a3140" : "#e5d9c0";
           const t = dark ? "#7a7565" : "#9b8a70";
-          if (c.options.scales.x) {
-            c.options.scales.x.grid.color = g;
-            c.options.scales.x.ticks.color = t;
-          }
-          if (c.options.scales.y) {
-            c.options.scales.y.grid.color = g;
-            c.options.scales.y.ticks.color = t;
-          }
+          ["x","y"].forEach(ax => {
+            if (c.options.scales[ax]) {
+              c.options.scales[ax].grid.color = g;
+              c.options.scales[ax].ticks.color = t;
+            }
+          });
           if (c.options.scales.r) {
             c.options.scales.r.grid.color = g;
             c.options.scales.r.angleLines.color = g;
@@ -682,7 +1072,9 @@ $("#exp").onclick = () => {
   URL.revokeObjectURL(a.href);
   toast("✓ Backup downloaded");
 };
+
 $("#imp").onclick = () => $("#file").click();
+
 $("#file").onchange = e => {
   const f = e.target.files[0];
   if (!f) return;
@@ -700,22 +1092,18 @@ $("#file").onchange = e => {
   e.target.value = "";
 };
 
-/* Clean orphaned data */
-function cleanupOrphans() {
-  const validSubs = new Set(SUBS);
-  let changed = false;
-  Object.keys(S.ch).forEach(k => {
-    const sub = k.split("|")[0];
-    if (!validSubs.has(sub)) { delete S.ch[k]; changed = true; }
-  });
-  Object.keys(S.tk).forEach(k => {
-    const before = (S.tk[k] || []).length;
-    S.tk[k] = (S.tk[k] || []).filter(t => t && t.id && t.text);
-    if (S.tk[k].length !== before) changed = true;
-    if (!S.tk[k].length) { delete S.tk[k]; changed = true; }
-  });
-  if (changed) save();
+/* Monthly tick */
+function monthlyTick() {
+  const changed = checkMonthChange();
+  if (changed) {
+    if ($("#dash").classList.contains("on")) renderDash();
+    if ($("#mo").classList.contains("on")) renderMonths();
+  }
 }
+setInterval(monthlyTick, 5 * 60 * 1000);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) monthlyTick();
+});
 
 /* Midnight date sync */
 setInterval(() => {
@@ -723,19 +1111,23 @@ setInterval(() => {
   if (td && td.value < today()) td.value = today();
 }, 60000);
 
-/* Chart.js fallback */
+/* Chart fallback */
 function showChartFallback() {
   document.querySelectorAll(".chartbox").forEach(c => {
     c.innerHTML = '<div class="chart-fallback">📉 Charts unavailable<br><small>Chart.js CDN could not load</small></div>';
   });
 }
 
-/* ═══ INIT ═══ */
+/* ═══════════════════════════════════════════════════════════
+   12. INIT
+   ═══════════════════════════════════════════════════════════ */
 applyTheme();
-cleanupOrphans();
+migrateLegacy();       // v5/v6/v7 → v8
+backfillArchives();    // archive any past months found in S.tk
+checkMonthChange();    // archive if a new month started
 if (!HAS_CHART) showChartFallback();
 renderDash();
-console.log("✓ Study Tracker ready. Charts:", HAS_CHART ? "✓" : "✗");
+console.log("✓ Study Tracker v8 ready. Charts:", HAS_CHART ? "✓" : "✗", "| Month:", S.currentMonth);
 </script>
 </body>
 </html>
