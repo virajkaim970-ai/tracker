@@ -132,6 +132,7 @@ input:focus,textarea:focus{border-color:var(--acc)}
 .mmarks b.pos{color:var(--grn)}
 .mmarks b.neg{color:var(--red)}
 .mqtext{font-size:14.5px;line-height:1.7;margin-bottom:20px;white-space:pre-wrap}
+.qimg{max-width:100%;max-height:300px;border-radius:9px;margin:11px 0;display:block;border:1px solid var(--ln);background:#fff;padding:6px}
 .mopts{display:flex;flex-direction:column;gap:8px;margin-bottom:22px}
 .mopt{display:flex;align-items:flex-start;gap:11px;padding:12px 15px;background:var(--p2);border:1.5px solid var(--ln);border-radius:9px;cursor:pointer;font:inherit;font-size:13.5px;line-height:1.5;text-align:left;color:var(--ink);transition:.15s}
 .mopt:hover{border-color:#4a6b8a;background:#eef3f8}
@@ -186,12 +187,21 @@ body.dark .pal.marked,body.dark .pal.ans-marked{background:#4a3a80;color:#fff;bo
 .mrev.skipped{border-left-color:var(--mut)}
 .mrev .rtitle{font-size:11px;color:var(--mut);margin-bottom:5px}
 .mrev .rtext{font-size:12.5px;margin-bottom:7px;line-height:1.55}
+.mrev .rtext .qimg{max-height:180px}
 .mrev .ropt{font-size:12px;padding:4px 8px;border-radius:5px;margin-bottom:2px;background:var(--p)}
 .mrev .ropt.correct{background:rgba(90,125,63,.2);color:var(--grn);font-weight:700}
 .mrev .ropt.chosen{background:rgba(176,74,74,.15);color:var(--red)}
 .manalysis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:12px}
 .mhr{display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:var(--p2);border-radius:8px;margin-bottom:5px;font-size:12.5px}
 .mhr b{font-family:Georgia,serif}
+.api-box{background:linear-gradient(135deg,rgba(74,107,138,.14),rgba(90,125,63,.08));border:1px solid #8ab0d0;border-radius:10px;padding:12px 14px;margin-bottom:11px}
+.api-box .ttl{font-family:Georgia,serif;font-size:13px;font-weight:700;color:var(--blu);margin-bottom:6px}
+.api-box .hint{font-size:11px;color:var(--mut);line-height:1.6;margin-bottom:9px}
+.api-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.api-row input{flex:1;min-width:200px;font-family:monospace;font-size:11.5px}
+#fetchStatus{font-size:11.5px;color:var(--mut);margin-left:8px}
+.progress-bar{height:6px;background:var(--ln);border-radius:99px;overflow:hidden;margin-top:8px;display:none}
+.progress-bar i{display:block;height:100%;background:linear-gradient(90deg,#5a7d3f,#4a6b8a);transition:width .3s;width:0%}
 #toast{position:fixed;bottom:16px;left:50%;transform:translate(-50%,100px);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:9px;font-size:12px;opacity:0;transition:.3s;pointer-events:none;z-index:99999}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 </style>
@@ -223,8 +233,7 @@ body.dark .pal.marked,body.dark .pal.ans-marked{background:#4a3a80;color:#fff;bo
 
 <section id="dash" class="panel on">
   <div class="stats" id="stats" style="margin-bottom:10px"></div>
-  <div class="card"><h3>This Month — Daily Completion</h3>
-    <div class="chartbox"><canvas id="c1"></canvas></div></div>
+  <div class="card"><h3>This Month — Daily Completion</h3><div class="chartbox"><canvas id="c1"></canvas></div></div>
   <div class="band c11"><span>▬ CLASS 11</span><span id="c11Summary">—</span></div>
   <div class="rgrid" id="radar11"></div>
   <div class="band c12"><span>▬ CLASS 12</span><span id="c12Summary">—</span></div>
@@ -251,8 +260,7 @@ body.dark .pal.marked,body.dark .pal.ans-marked{background:#4a3a80;color:#fff;bo
     </div>
     <div id="chlist"></div>
     <p style="font-size:11px;color:var(--mut);margin-top:10px;line-height:1.7">
-      <b>Done</b> = completed · <b>R1</b> = revised once · <b>R2</b> = revised twice ·
-      <b>Q</b> = questions practiced · <b>N</b> = short notes made
+      <b>Done</b> = completed · <b>R1</b> = revised once · <b>R2</b> = revised twice · <b>Q</b> = questions practiced · <b>N</b> = short notes made
     </p>
   </div>
 </section>
@@ -290,10 +298,40 @@ body.dark .pal.marked,body.dark .pal.ans-marked{background:#4a3a80;color:#fff;bo
 
 <section id="pyq" class="panel">
   <div class="card">
-    <h3>📚 JEE PYQ Bank</h3>
+    <h3>🌐 Auto-Fetch from Hugging Face</h3>
+    <div class="api-box">
+      <div class="ttl">🚀 Fetch 2,000+ JEE PYQs Automatically</div>
+      <div class="hint">
+        Paste your free Hugging Face token below (starts with <code>hf_</code>). Get one at
+        <a href="https://huggingface.co/settings/tokens" target="_blank" style="color:var(--blu)">huggingface.co/settings/tokens</a>
+        → New token (Read).
+      </div>
+      <div class="api-row">
+        <input type="password" id="hfToken" placeholder="hf_xxxxxxxxxxxxxxxxxxxxxxxx">
+        <button class="btn" id="saveTokenBtn">💾 Save</button>
+      </div>
+      <div class="api-row">
+        <select id="fetchLevel" style="flex:1">
+          <option value="mains">📗 JEE Mains only (~2,300 Q)</option>
+          <option value="advanced">📕 JEE Advanced only (~120 Q)</option>
+          <option value="both">📘 Both Mains + Advanced (~2,400 Q)</option>
+        </select>
+        <label style="font-size:11.5px;color:var(--ink2);display:flex;align-items:center;gap:5px">
+          <input type="checkbox" id="skipImages" checked style="width:auto"> Skip image-only questions
+        </label>
+      </div>
+      <div class="api-row">
+        <button class="btn pri" id="fetchBtn">🌐 Fetch Questions</button>
+        <span id="fetchStatus">Ready</span>
+      </div>
+      <div class="progress-bar" id="fetchProgress"><i></i></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📚 Manual Add / Bulk Import</h3>
     <p style="font-size:11px;color:var(--mut);margin-bottom:10px">
-      Format: <code>Subject | Chapter | Question | A | B | C | D | Correct(0-3) | Year | Level</code><br>
-      <small>Level = <b>mains</b>, <b>advanced</b>, or <b>both</b></small>
+      Format: <code>Subject | Chapter | Question | A | B | C | D | Correct(0-3) | Year | Level</code>
     </p>
     <div class="row" style="margin-bottom:10px">
       <select id="pyqSubFilter" style="flex:1"><option value="">All Subjects</option></select>
@@ -305,14 +343,25 @@ body.dark .pal.marked,body.dark .pal.ans-marked{background:#4a3a80;color:#fff;bo
         <option value="both">📘 Both</option>
       </select>
     </div>
-    <textarea id="pyqInput" rows="3" style="width:100%;font-family:monospace;font-size:11.5px"
-      placeholder="Physics | Rotational Motion | A disc of mass M... | A | B | C | D | 2 | 2023 | mains"></textarea>
+    <textarea id="pyqBulkText" rows="4" placeholder="Paste hundreds of lines here (one per line)…
+Physics | Rotational Motion | Q text | A | B | C | D | 1 | 2023 | mains"
+      style="width:100%;font-family:monospace;font-size:11.5px;line-height:1.5"></textarea>
     <div class="row" style="margin-top:7px">
-      <button class="btn pri" id="pyqAdd">+ Add</button>
-      <button class="btn" id="pyqBulk">Bulk CSV</button>
+      <button class="btn pri" id="pyqBulkAdd">📥 Import Pasted</button>
+      <button class="btn" id="pyqFileBtn">📁 Upload CSV/TXT</button>
+      <button class="btn" id="pyqClearBulk">Clear</button>
+      <input type="file" id="pyqFileIn" hidden accept=".csv,.txt,.json">
     </div>
   </div>
-  <div class="card"><h3>📋 Saved (<span id="pyqCount">0</span>)</h3><div id="pyqList"></div></div>
+
+  <div class="card">
+    <h3>📋 Saved (<span id="pyqCount">0</span>)</h3>
+    <div class="row" style="margin-bottom:8px">
+      <button class="btn" id="pyqDeleteAll" style="font-size:11px">🗑️ Delete All PYQs</button>
+      <span id="pyqFilterInfo" style="font-size:11px;color:var(--mut)"></span>
+    </div>
+    <div id="pyqList"></div>
+  </div>
 </section>
 
 <section id="mt" class="panel">
@@ -438,7 +487,7 @@ Mathematics:{"11":["Sets","Relations & Functions","Trigonometric Functions","Com
 const METRICS=[{k:'c',lbl:'Done',full:'Chapter Completed',color:'#5a7d3f'},{k:'r1',lbl:'R1',full:'Revised Once',color:'#4a6b8a'},{k:'r2',lbl:'R2',full:'Revised Twice',color:'#7a5aaa'},{k:'q',lbl:'Q',full:'Questions Practiced',color:'#b8860b'},{k:'n',lbl:'N',full:'Short Notes Made',color:'#a05a7a'}];
 const SUBS=Object.keys(SYL);
 const SCLR={Physics:"#4a6b8a","Physical Chemistry":"#5a7d3f","Organic Chemistry":"#7a5aaa","Inorganic Chemistry":"#3a7a7a",Mathematics:"#b8860b"};
-const KEY="study-tracker-v10",MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const KEY="study-tracker-v11",MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const pad=n=>String(n).padStart(2,'0');
@@ -449,7 +498,7 @@ const todayM=()=>mk(new Date());
 const mLabel=ym=>{const[y,m]=ym.split('-');return MN[+m-1]+' '+y};
 const esc=s=>s==null?'':String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ckey=(s,c,n)=>s+'|'+c+'|'+n;
-function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._);t._=setTimeout(()=>t.classList.remove("on"),2000)}
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._);t._=setTimeout(()=>t.classList.remove("on"),2400)}
 
 function normSeries(s){
   if(!s||typeof s!=='object')return{mains:{tests:[],results:[]},advanced:{tests:[],results:[]}};
@@ -478,7 +527,7 @@ const chState=(s,c,n)=>{const k=ckey(s,c,n);if(!S.ch[k])S.ch[k]={c:!1,r1:!1,r2:!
 
 function migrate(){
   if(localStorage.getItem(KEY))return;
-  for(const src of["study-tracker-v8","study-tracker-v7","study-tracker-v6","study-tracker-v5"]){
+  for(const src of["study-tracker-v10","study-tracker-v8","study-tracker-v7","study-tracker-v5"]){
     const raw=localStorage.getItem(src);if(!raw)continue;
     try{const old=JSON.parse(raw);if(!old.ch&&!old.tk)continue;
       localStorage.setItem(KEY,JSON.stringify(normState(old)));
@@ -486,24 +535,15 @@ function migrate(){
     }catch(e){}
   }
 }
-
 function archM(ym){
   const tasks={};Object.keys(S.tk).forEach(k=>{if(k.startsWith(ym))tasks[k]=S.tk[k]});
-  const snap={};
-  SUBS.forEach(s=>{snap[s]={"11":{c:0,r1:0,r2:0,q:0,n:0,total:0},"12":{c:0,r1:0,r2:0,q:0,n:0,total:0}};
+  const snap={};SUBS.forEach(s=>{snap[s]={"11":{c:0,r1:0,r2:0,q:0,n:0,total:0},"12":{c:0,r1:0,r2:0,q:0,n:0,total:0}};
     ["11","12"].forEach(c=>{const list=SYL[s][c]||[];snap[s][c].total=list.length;
       list.forEach(n=>{const st=S.ch[ckey(s,c,n)];if(!st)return;METRICS.forEach(m=>{if(st[m.k])snap[s][c][m.k]++})})})});
   S.months[ym]={tasks,chSnap:snap,archivedAt:new Date().toISOString()};
 }
-function checkM(){
-  const n=todayM();
-  if(S.currentMonth!==n){archM(S.currentMonth);S.currentMonth=n;save();toast("📅 Month archived");return 1}
-  return 0;
-}
-function backfill(){
-  const ms=new Set();Object.keys(S.tk).forEach(k=>ms.add(k.slice(0,7)));
-  ms.forEach(ym=>{if(ym!==S.currentMonth&&!S.months[ym])archM(ym)});
-}
+function checkM(){const n=todayM();if(S.currentMonth!==n){archM(S.currentMonth);S.currentMonth=n;save();toast("📅 Month archived");return 1}return 0}
+function backfill(){const ms=new Set();Object.keys(S.tk).forEach(k=>ms.add(k.slice(0,7)));ms.forEach(ym=>{if(ym!==S.currentMonth&&!S.months[ym])archM(ym)})}
 
 function cStats(sub,cls){
   const list=SYL[sub][cls]||[],total=list.length,cnt={c:0,r1:0,r2:0,q:0,n:0};
@@ -550,7 +590,6 @@ function drawBar(id,ym){
     options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1},tooltip:{backgroundColor:'#3a2e1f',padding:9,callbacks:{label:c=>' '+c.parsed.y.toFixed(0)+'%'}}},
       scales:{y:{beginAtZero:!0,max:100,grid:gC,ticks:{...tC,callback:v=>v+'%'}},x:{grid:{display:!1},ticks:{...tC,maxRotation:0,autoSkipPadding:6}}}}});
 }
-
 function drawRadars(cls,gridId){
   const grid=document.getElementById(gridId);if(!grid)return;
   const dark=document.body.classList.contains('dark');
@@ -583,17 +622,13 @@ function renderDash(){
     <div class="stat"><span class="lb">✅ Chapters</span><span class="vl">${dCh}<small>/${tCh}</small></span><div class="bar"><i style="width:${tCh?dCh/tCh*100:0}%;background:var(--grn)"></i></div></div>
     <div class="stat"><span class="lb">📝 Tasks</span><span class="vl">${ts.done}<small>/${ts.total}</small></span><div class="bar"><i style="width:${ts.pct}%"></i></div></div>
     <div class="stat"><span class="lb">🔥 Streak</span><span class="vl">${stk}<small> days</small></span><div class="bar"><i style="width:${Math.min(stk/30*100,100)}%;background:var(--red)"></i></div></div>`;
-  $("#tag").textContent=`${dCh} chapters done · ${stk}-day streak`;
+  $("#tag").textContent=`${dCh} chapters done · ${stk}-day streak · ${S.pyq.length} PYQs`;
   const a=cOv('11'),b=cOv('12');
   $("#c11Summary").textContent=`${a.pct.toFixed(1)}% overall · ${a.total} chapters`;
   $("#c12Summary").textContent=`${b.pct.toFixed(1)}% overall · ${b.total} chapters`;
   $("#subjBars").innerHTML=SUBS.map(s=>{
     const st=sStats(s);
-    return `<div class="sprog"><div class="sh"><b style="color:${SCLR[s]}">${s}</b>
-      <span>${st.cnt.c}/${st.total} done · ${st.overall.toFixed(0)}%</span></div>
-      <div class="cr"><span class="lbl">11th</span><div class="bar"><i style="width:${st.s11.overall}%;background:var(--c11)"></i></div><span class="pct">${st.s11.overall.toFixed(0)}%</span></div>
-      <div class="cr"><span class="lbl">12th</span><div class="bar"><i style="width:${st.s12.overall}%;background:var(--c12)"></i></div><span class="pct">${st.s12.overall.toFixed(0)}%</span></div>
-    </div>`}).join('');
+    return `<div class="sprog"><div class="sh"><b style="color:${SCLR[s]}">${s}</b><span>${st.cnt.c}/${st.total} done · ${st.overall.toFixed(0)}%</span></div><div class="cr"><span class="lbl">11th</span><div class="bar"><i style="width:${st.s11.overall}%;background:var(--c11)"></i></div><span class="pct">${st.s11.overall.toFixed(0)}%</span></div><div class="cr"><span class="lbl">12th</span><div class="bar"><i style="width:${st.s12.overall}%;background:var(--c12)"></i></div><span class="pct">${st.s12.overall.toFixed(0)}%</span></div></div>`}).join('');
   drawBar('c1',S.currentMonth);drawRadars('11','radar11');drawRadars('12','radar12');
 }
 
@@ -681,45 +716,257 @@ function showMD(ym){
   drawBar('c2',ym);
 }
 
+/* ═══════════════════════════════════════════════════════════
+   HUGGING FACE API FETCH
+   ═══════════════════════════════════════════════════════════ */
+const HF_KEY="hf_token_study_tracker";
+const HF_SUBJECT_MAP={physics:"Physics",chemistry:"Chemistry",mathematics:"Mathematics"};
+
+if(!localStorage.getItem(HF_KEY)){
+  /* nothing saved yet */
+}
+function loadHFToken(){
+  const t=localStorage.getItem(HF_KEY);
+  if(t&&$("#hfToken"))$("#hfToken").value=t;
+}
+$("#saveTokenBtn").onclick=()=>{
+  const t=$("#hfToken").value.trim();
+  if(!t.startsWith("hf_")){toast("⚠ Token must start with hf_");return}
+  localStorage.setItem(HF_KEY,t);
+  toast("💾 Token saved");
+};
+
+async function hfFetch(dataset,config,offset=0,length=100){
+  const url=`https://datasets-server.huggingface.co/rows?dataset=${dataset}&config=${config}&split=train&offset=${offset}&length=${length}`;
+  const hdrs={};
+  const tok=localStorage.getItem(HF_KEY);
+  if(tok)hdrs["Authorization"]=`Bearer ${tok}`;
+  const r=await fetch(url,{headers:hdrs});
+  if(!r.ok)throw new Error(`HTTP ${r.status} (${dataset}/${config})`);
+  return await r.json();
+}
+
+function cleanTxt(t){
+  if(!t)return"";
+  return String(t).replace(/\s+/g," ").trim();
+}
+
+async function fetchAllPYQs(){
+  const btn=$("#fetchBtn");
+  const status=$("#fetchStatus");
+  const pb=$("#fetchProgress");
+  const bar=pb.querySelector("i");
+  const skipImgs=$("#skipImages").checked;
+  const level=$("#fetchLevel").value;
+
+  if(!localStorage.getItem(HF_KEY)){
+    toast("⚠ Please save your Hugging Face token first");
+    return;
+  }
+
+  btn.disabled=true;btn.textContent="⏳ Fetching…";
+  pb.style.display="block";bar.style.width="0%";
+  status.textContent="Connecting…";
+
+  const existing=new Set(S.pyq.map(q=>cleanTxt(q.text).slice(0,120).toLowerCase()));
+  let added=0,skipped=0;
+
+  /* Build fetch tasks */
+  const tasks=[];
+  if(level==="mains"||level==="both"){
+    ["physics","chemistry","mathematics"].forEach(c=>tasks.push({ds:"eQOURSE/jee-main-questions",cfg:c,level:"mains",subj:HF_SUBJECT_MAP[c]}));
+  }
+  if(level==="advanced"||level==="both"){
+    ["physics","mathematics"].forEach(c=>tasks.push({ds:"eQOURSE/jee-advanced-questions",cfg:c,level:"advanced",subj:HF_SUBJECT_MAP[c]}));
+  }
+
+  const totalTasks=tasks.length;
+  let taskDone=0;
+
+  for(const t of tasks){
+    status.textContent=`Fetching ${t.subj} (${t.level})…`;
+    let offset=0,got=0;
+    while(offset<2000){
+      let data;
+      try{
+        data=await hfFetch(t.ds,t.cfg,offset,100);
+      }catch(e){
+        console.warn(e);break;
+      }
+      if(!data.rows||!data.rows.length)break;
+
+      for(const it of data.rows){
+        const r=it.row;
+        const text=cleanTxt(r.question);
+        if(!text){skipped++;continue}
+        /* Skip image-only */
+        if(skipImgs&&/\[IMAGE\]|\[image\]|\[diagram\]/i.test(text)){skipped++;continue}
+
+        const opts=[
+          cleanTxt(r.option_1),cleanTxt(r.option_2),
+          cleanTxt(r.option_3),cleanTxt(r.option_4)
+        ];
+        if(opts.some(o=>!o)){skipped++;continue}
+
+        const ci=(parseInt(r.correct_option)||1)-1;
+        if(ci<0||ci>3){skipped++;continue}
+
+        const key=text.slice(0,120).toLowerCase();
+        if(existing.has(key)){skipped++;continue}
+        existing.add(key);
+
+        S.pyq.push({
+          sub:t.subj,
+          chap:cleanTxt(r.topic)||"Uncategorized",
+          text:text,
+          options:opts,
+          correct:ci,
+          year:r.year?parseInt(r.year):null,
+          level:t.level,
+          img:null
+        });
+        added++;got++;
+      }
+      offset+=100;
+      const pct=Math.round(((taskDone+Math.min(offset/2000,1))/totalTasks)*100);
+      bar.style.width=pct+"%";
+      status.textContent=`${t.subj} ${t.level} — ${got} fetched · ${added} total`;
+      if(offset>=data.num_rows_total)break;
+      await new Promise(r=>setTimeout(r,120));  /* rate limit safety */
+    }
+    taskDone++;
+    bar.style.width=Math.round(taskDone/totalTasks*100)+"%";
+  }
+
+  save();
+  if(typeof renderPYQ==="function")renderPYQ();
+  renderDash();
+
+  btn.disabled=false;btn.textContent="🌐 Fetch Questions";
+  setTimeout(()=>{pb.style.display="none"},800);
+  status.textContent=`✅ Done — added ${added}, skipped ${skipped}`;
+  toast(`✅ Added ${added} questions · ${skipped} skipped`);
+
+  /* Offer to generate tests */
+  if(added>0){
+    setTimeout(()=>{
+      if(confirm(`Added ${added} questions!\n\nGo to 📗 Mains or 📕 Advanced tab → click ⚡ Generate to auto-create tests?`))show("tsm");
+    },500);
+  }
+}
+
+$("#fetchBtn").onclick=fetchAllPYQs;
+
+/* ═══════════════════════════════════════════════════════════
+   MANUAL / BULK PYQ IMPORT
+   ═══════════════════════════════════════════════════════════ */
+function parsePYQLine(line){
+  const p=line.split('|').map(x=>x.trim());
+  if(p.length<9)return null;
+  const cor=parseInt(p[7]);
+  if(isNaN(cor)||cor<0||cor>3)return null;
+  const lv=(p[9]||'both').toLowerCase();
+  return{
+    sub:p[0],chap:p[1],text:p[2],
+    options:[p[3],p[4],p[5],p[6]],
+    correct:cor,year:parseInt(p[8])||null,
+    level:['mains','advanced','both'].includes(lv)?lv:'both',
+    img:p[10]||null
+  };
+}
+
+$("#pyqBulkAdd").onclick=()=>{
+  const txt=$("#pyqBulkText").value;
+  if(!txt.trim()){toast("⚠ Paste lines first");return}
+  let ok=0,fail=0;
+  txt.split(/\r?\n/).forEach(line=>{
+    line=line.trim();
+    if(!line||line.startsWith('#'))return;
+    const q=parsePYQLine(line);
+    if(q){S.pyq.push(q);ok++}else fail++;
+  });
+  if(!ok){toast("❌ No valid lines");return}
+  save();$("#pyqBulkText").value="";renderPYQ();renderDash();
+  toast(`✓ Imported ${ok}${fail?' · '+fail+' skipped':''}`);
+};
+
+$("#pyqFileBtn").onclick=()=>$("#pyqFileIn").click();
+$("#pyqFileIn").onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    let text=ev.target.result;
+    if(f.name.toLowerCase().endsWith('.json')){
+      try{
+        const arr=JSON.parse(text);
+        if(Array.isArray(arr)){
+          text=arr.map(q=>[q.sub,q.chap,q.text,...(q.options||[]).slice(0,4),q.correct,q.year||'',q.level||'both'].join(' | ')).join('\n');
+        }
+      }catch(err){alert('Invalid JSON');return}
+    }
+    let ok=0,fail=0;
+    text.split(/\r?\n/).forEach(line=>{
+      line=line.trim();
+      if(!line||line.startsWith('#'))return;
+      const parts=line.includes('|')?line.split('|').map(x=>x.trim()):line.split(',').map(x=>x.trim());
+      if(parts.length<9){fail++;return}
+      const cor=parseInt(parts[7]);
+      if(isNaN(cor)||cor<0||cor>3){fail++;return}
+      const lv=(parts[9]||'both').toLowerCase();
+      S.pyq.push({
+        sub:parts[0],chap:parts[1],text:parts[2],
+        options:[parts[3],parts[4],parts[5],parts[6]],
+        correct:cor,year:parseInt(parts[8])||null,
+        level:['mains','advanced','both'].includes(lv)?lv:'both',
+        img:parts[10]||null
+      });
+      ok++;
+    });
+    if(!ok){toast("❌ No valid lines");return}
+    save();renderPYQ();renderDash();
+    toast(`✓ Imported ${ok}${fail?' · '+fail+' skipped':''}`);
+  };
+  r.readAsText(f);e.target.value='';
+};
+
+$("#pyqClearBulk").onclick=()=>$("#pyqBulkText").value="";
+$("#pyqDeleteAll").onclick=()=>{
+  if(!S.pyq.length){toast("Nothing to delete");return}
+  if(!confirm(`Delete all ${S.pyq.length} PYQs? This cannot be undone.`))return;
+  S.pyq=[];save();renderPYQ();renderDash();toast("🗑️ All PYQs deleted");
+};
+
 function renderPYQ(){
   const sf=$("#pyqSubFilter");
   if(sf&&sf.options.length===1)SUBS.forEach(s=>sf.innerHTML+=`<option>${s}</option>`);
   const yf=$("#pyqYearFilter");
-  if(yf){const cur=yf.value;const ys=[...new Set(S.pyq.map(q=>q.year).filter(Boolean))].sort().reverse();
+  if(yf){
+    const cur=yf.value;
+    const ys=[...new Set(S.pyq.map(q=>q.year).filter(Boolean))].sort().reverse();
     yf.innerHTML='<option value="">All Years</option>'+ys.map(y=>`<option>${y}</option>`).join('');
-    if(cur&&ys.includes(+cur))yf.value=cur}
+    if(cur&&ys.includes(+cur))yf.value=cur;
+  }
   const sfv=sf?.value,yfv=yf?.value,lf=$("#pyqLevelFilter")?.value;
   let f=S.pyq;
-  if(sfv)f=f.filter(q=>q.sub===sfv);
+  if(sfv)f=f.filter(q=>q.sub===sfv||q.sub==="Chemistry"&&sfv==="Physical Chemistry");
   if(yfv)f=f.filter(q=>q.year===+yfv);
   if(lf)f=f.filter(q=>{const l=q.level||'both';return l===lf||l==='both'});
   $("#pyqCount").textContent=S.pyq.length;
-  if(!f.length){$("#pyqList").innerHTML='<div class="empty"><div class="big">📭</div>No PYQs</div>';return}
-  $("#pyqList").innerHTML=f.slice(0,100).map(q=>{
+  $("#pyqFilterInfo").textContent=f.length!==S.pyq.length?`Showing ${f.length} of ${S.pyq.length}`:'';
+  if(!f.length){$("#pyqList").innerHTML='<div class="empty"><div class="big">📭</div>No PYQs — fetch or paste questions above</div>';return}
+  $("#pyqList").innerHTML=f.slice(0,200).map(q=>{
     const lv=q.level||'both',bd=lv==='mains'?'📗 Mains':lv==='advanced'?'📕 Advanced':'📘 Both';
     const col=lv==='mains'?'#4a6b8a':lv==='advanced'?'#8b5a2b':'#5a7d3f';
-    return `<div style="padding:9px;background:var(--p2);border-radius:8px;margin-bottom:5px;border-left:3px solid ${col}"><div style="font-size:10.5px;color:var(--mut);margin-bottom:3px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px"><span>${esc(q.sub||'—')} · ${esc(q.chap||'—')} ${q.year?'· '+q.year:''}</span><b style="color:${col}">${bd}</b></div><div style="font-size:12.5px;line-height:1.5">${esc(q.text)}</div><div style="font-size:11px;margin-top:5px;color:var(--mut)">Ans: <b style="color:var(--grn)">${String.fromCharCode(65+q.correct)}</b></div></div>`;
-  }).join('');
+    return `<div style="padding:9px;background:var(--p2);border-radius:8px;margin-bottom:5px;border-left:3px solid ${col}"><div style="font-size:10.5px;color:var(--mut);margin-bottom:3px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px"><span>${esc(q.sub||'—')} · ${esc(q.chap||'—')} ${q.year?'· '+q.year:''}</span><b style="color:${col}">${bd}</b></div><div style="font-size:12.5px;line-height:1.5">${esc(q.text)}</div>${q.img?`<img class="qimg" src="${esc(q.img)}" loading="lazy">`:''}<div style="font-size:11px;margin-top:5px;color:var(--mut)">Ans: <b style="color:var(--grn)">${String.fromCharCode(65+q.correct)}</b></div></div>`;
+  }).join('')+(f.length>200?`<div style="text-align:center;color:var(--mut);font-size:11px;padding:8px">…showing first 200 of ${f.length}</div>`:'');
 }
-$("#pyqAdd").onclick=()=>{
-  const raw=$("#pyqInput").value.trim();if(!raw){$("#pyqInput").focus();return}
-  const p=raw.split('|').map(x=>x.trim());
-  if(p.length<9){toast('⚠ Need 9 fields');return}
-  const cor=parseInt(p[7]);if(isNaN(cor)||cor<0||cor>3){toast('⚠ Correct must be 0-3');return}
-  const lv=(p[9]||'both').toLowerCase();
-  S.pyq.push({sub:p[0],chap:p[1],text:p[2],options:[p[3],p[4],p[5],p[6]],correct:cor,year:parseInt(p[8])||null,level:['mains','advanced','both'].includes(lv)?lv:'both'});
-  save();$("#pyqInput").value='';renderPYQ();toast('✓ Added');
-};
-$("#pyqBulk").onclick=()=>{
-  const raw=prompt('CSV lines (Subject,Chapter,Q,A,B,C,D,Correct,Year,Level):');if(!raw)return;
-  let n=0;raw.split('\n').forEach(l=>{const p=l.split(',').map(x=>x.trim());if(p.length<9)return;
-    const cor=parseInt(p[7]);if(isNaN(cor)||cor<0||cor>3)return;
-    const lv=(p[9]||'both').toLowerCase();
-    S.pyq.push({sub:p[0],chap:p[1],text:p[2],options:[p[3],p[4],p[5],p[6]],correct:cor,year:parseInt(p[8])||null,level:['mains','advanced','both'].includes(lv)?lv:'both'});n++});
-  save();renderPYQ();toast(`✓ ${n} imported`);
-};
-$("#pyqSubFilter").onchange=renderPYQ;$("#pyqYearFilter").onchange=renderPYQ;$("#pyqLevelFilter").onchange=renderPYQ;
+$("#pyqSubFilter").onchange=renderPYQ;
+$("#pyqYearFilter").onchange=renderPYQ;
+$("#pyqLevelFilter").onchange=renderPYQ;
 
+/* ═══════════════════════════════════════════════════════════
+   MOCK TEST ENGINE
+   ═══════════════════════════════════════════════════════════ */
 let mtS=null,mtT=null;
 function mtSections(qs){const s={};qs.forEach((q,i)=>{const sub=q.sub||'Other';(s[sub]=s[sub]||[]).push(i)});return s}
 function mtInit(){
@@ -787,7 +1034,7 @@ function mtQ(){
   document.getElementById('mtNeg').textContent=mtS.neg;
   const ans=Object.keys(mtS.answers).length;
   document.getElementById('mtMetaLine').textContent=`${mtS.name} · ${ans}/${total} attempted`;
-  document.getElementById('mtStem').textContent=q.text;
+  document.getElementById('mtStem').innerHTML=esc(q.text)+(q.img?`<img class="qimg" src="${esc(q.img)}" loading="lazy">`:'');
   const chosen=mtS.answers[mtS.idx];
   document.getElementById('mtOptions').innerHTML=q.options.map((o,i)=>`<button class="mopt${chosen===i?' sel':''}" data-opt="${i}"><span class="ltr">${String.fromCharCode(65+i)}</span><span>${esc(o)}</span></button>`).join('');
   document.querySelectorAll('.mopt').forEach(b=>{b.onclick=()=>{mtS.answers[mtS.idx]=+b.dataset.opt;mtQ();mtPal()}});
@@ -853,7 +1100,7 @@ function mtShowResult(r,qs,ans,marked){
     const a=ans[i],st=a===undefined?'skipped':a===q.correct?'correct':'wrong';
     const mk=marked&&marked.has(i);
     const opts=q.options.map((o,j)=>{let c='ropt';if(j===q.correct)c+=' correct';else if(a===j)c+=' chosen';return `<div class="${c}">${String.fromCharCode(65+j)}. ${esc(o)}</div>`}).join('');
-    return `<div class="mrev ${st}"><div class="rtitle">Q${i+1} · ${esc(q.sub||'—')} · ${esc(q.chap||'—')} · <b style="color:${st==='correct'?'var(--grn)':st==='wrong'?'var(--red)':'var(--mut)'}">${st.toUpperCase()}</b>${mk?' · 🔖':''}</div><div class="rtext">${esc(q.text)}</div>${opts}${q.explain?`<div style="font-size:11.5px;color:var(--mut);margin-top:7px;padding-top:7px;border-top:1px solid var(--ln)"><b>Exp:</b> ${esc(q.explain)}</div>`:''}</div>`;
+    return `<div class="mrev ${st}"><div class="rtitle">Q${i+1} · ${esc(q.sub||'—')} · ${esc(q.chap||'—')} · <b style="color:${st==='correct'?'var(--grn)':st==='wrong'?'var(--red)':'var(--mut)'}">${st.toUpperCase()}</b>${mk?' · 🔖':''}</div><div class="rtext">${esc(q.text)}${q.img?`<img class="qimg" src="${esc(q.img)}" loading="lazy">`:''}</div>${opts}${q.explain?`<div style="font-size:11.5px;color:var(--mut);margin-top:7px;padding-top:7px;border-top:1px solid var(--ln)"><b>Exp:</b> ${esc(q.explain)}</div>`:''}</div>`;
   }).join('');
 }
 document.getElementById('mtReviewBtn').onclick=()=>{const b=document.getElementById('mtReviewBox');b.style.display=b.style.display==='none'?'block':'none';if(b.style.display==='block')b.scrollIntoView({behavior:'smooth'})};
@@ -865,6 +1112,9 @@ function mtHist(){
     return `<div class="mhr"><div><b>${esc(r.name||'Untitled')}</b><div style="font-size:10.5px;color:var(--mut);margin-top:1px">${r.date} · ${Math.floor(r.timeUsed/60)}m · ${r.total}Q</div></div><div style="text-align:right"><b style="color:${col};font-size:14px">${r.score}/${r.maxScore}</b><div style="font-size:10.5px;color:${col}">${r.pct.toFixed(0)}%</div></div></div>`}).join('');
 }
 
+/* ═══════════════════════════════════════════════════════════
+   TEST SERIES (Mains + Advanced)
+   ═══════════════════════════════════════════════════════════ */
 const TS={mains:{tag:'mains',pos:4,neg:1,label:'Mains',cb:'#4a6b8a',qmin:3,qcmin:10,qfmin:30,qmax:10,cq:25,fq:75,pm:2,fd:180},advanced:{tag:'advanced',pos:4,neg:2,label:'Advanced',cb:'#8b5a2b',qmin:3,qcmin:8,qfmin:25,qmax:8,cq:18,fq:54,pm:3,fd:180}};
 const tsPass=(q,t)=>{const l=q.level||'both';return l==='both'||l===t};
 function tsGen(mode){
@@ -992,9 +1242,10 @@ setInterval(()=>{const t=document.getElementById('td');if(t&&t.value<today())t.v
 function showFallback(){document.querySelectorAll('.chartbox').forEach(c=>{c.innerHTML='<div class="chart-fallback">📉 Charts unavailable<br><small>Chart.js CDN blocked</small></div>'})}
 
 applyTheme();migrate();backfill();checkM();
+loadHFToken();
 if(!HAS_CHART)showFallback();
 renderDash();
-console.log('✓ Study Tracker v10 ready. Charts:',HAS_CHART?'✓':'✗');
+console.log('✓ Study Tracker v11 ready. Charts:',HAS_CHART?'✓':'✗','| PYQs:',S.pyq.length);
 </script>
 </body>
 </html>
